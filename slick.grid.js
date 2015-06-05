@@ -2295,7 +2295,7 @@ if (typeof Slick === "undefined") {
             appendCellHtml(stringArrayL, row, i, colspan, d);
           }
         } else if (hasFrozenColumns() && ( i <= options.frozenColumn )) {
-          appendCellHtml(stringArrayL, row, i, colspan);
+          appendCellHtml(stringArrayL, row, i, colspan, d);
         }
 
         if (colspan > 1) {
@@ -2742,12 +2742,6 @@ if (typeof Slick === "undefined") {
       range.top = Math.max(0, range.top);
       range.bottom = Math.min(getDataLengthIncludingAddNew() - 1, range.bottom);
 
-      range.leftPx -= viewportW;
-      range.rightPx += viewportW;
-
-      range.leftPx = Math.max(0, range.leftPx);
-      range.rightPx = Math.min(canvasWidth, range.rightPx);
-
       return range;
     }
 
@@ -3022,9 +3016,15 @@ if (typeof Slick === "undefined") {
 
       // Render frozen bottom rows
       if (options.frozenBottom) {
-        renderRows({
+        var frozenRowsRendered = {
           top: actualFrozenRow, bottom: getDataLength() - 1, leftPx: rendered.leftPx, rightPx: rendered.rightPx
-        });
+        };
+
+        if (lastRenderedScrollLeft != scrollLeft) {
+          cleanUpAndRenderCells(frozenRowsRendered);
+        }
+
+        renderRows(frozenRowsRendered);
       }
 
       postProcessFromRow = visible.top;
