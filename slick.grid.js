@@ -3721,6 +3721,21 @@ if (typeof Slick === "undefined") {
       }
     }
 
+	function scrollColumnToLeftBorder(column, doPaging) {
+      // Don't scroll to frozen columns
+      if (column <= options.frozenColumn) {
+        return;
+      }
+
+      var left = columnPosLeft[column];
+
+      if (scrollLeft != left) {
+        $viewportScrollContainerX.scrollLeft(left);
+        handleScroll();
+        render();
+      }
+    }
+	
     function setActiveCellInternal(newCell, opt_editMode) {
       if (activeCellNode !== null) {
         makeActiveCellNormal();
@@ -4665,6 +4680,7 @@ if (typeof Slick === "undefined") {
       "scrollRowIntoView": scrollRowIntoView,
       "scrollRowToTop": scrollRowToTop,
       "scrollCellIntoView": scrollCellIntoView,
+      "scrollColumnToLeftBorder": scrollColumnToLeftBorder,
       "getCanvasNode": getCanvasNode,
       "getCanvases": getCanvases,
       "getActiveCanvasNode": getActiveCanvasNode,
