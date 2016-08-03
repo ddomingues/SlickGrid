@@ -2064,6 +2064,7 @@
         invalidateAllRows();
         createColumnHeaders();
         createColumnGroupHeaders();
+        createColumnFooter();
         removeCssRules();
         createCssRules();
         resizeCanvas();
