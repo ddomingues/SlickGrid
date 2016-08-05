@@ -264,6 +264,26 @@
     //////////////////////////////////////////////////////////////////////////////////////////////
     // Initialization
 
+    function FillColumnBranch(depth, count, cols) {
+      depth--;
+      for (var i in cols) {
+        if (cols[i].hasOwnProperty('columns'))
+          count = FillColumnBranch(depth, count, cols[i].columns)
+        else {
+          while (depth > 0) {
+            var col = [{id: "dummy#" + (depth - 1) + "_" + i + "_" + count, name: "", columns: cols[i]}];
+            cols[i] = {};
+            cols[i].id = "dummy#" + depth + "_" + i + "_" + count;
+            cols[i].name = " ";
+            cols[i].columns = col;
+            depth--;
+          }
+          count++;
+        }
+      }
+      return count;
+    }
+
     function init() {
       $container = $(container);
       if ($container.length < 1) {
@@ -278,19 +298,12 @@
       validateAndEnforceOptions();
       columnDefaults.width = options.defaultColumnWidth;
 
-      var maxDepth = 0;
-      for (var i in columns) {
-        treeColumns = new Slick.TreeColumns(columns[i].columns);
-        var currentDepth = treeColumns.getDepth(columns[i].columns);
-
-        console.log(i + " : " + currentDepth);
-
-        if (currentDepth > maxDepth)
-          maxDepth = currentDepth;
-      }
-      console.log("maxDepth : " + maxDepth);
-
       treeColumns = new Slick.TreeColumns(columns);
+
+      var depth = treeColumns.getDepth(columns);
+      FillColumnBranch(depth, 0, columns);
+      console.log(columns);
+
       columns = treeColumns.extractColumns();
 
       columnsById = {};

@@ -491,13 +491,13 @@
     }
 
     function mapToId(columns) {
-      columns
-        .forEach(function (column) {
-          columnsById[column.id] = column;
+      for(var i in columns)
+      {
+        columnsById[columns[i].id] = columns[i];
 
-          if (column.columns)
-            mapToId(column.columns);
-        });
+        if(columns[i].columns)
+          mapToId(columns[i].columns)
+      }
     }
 
     function filter(node, condition) {
