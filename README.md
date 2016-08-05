@@ -1,9 +1,6 @@
 # We adding some Features and Fixes in this Fork for the X-SlickGrid
 ## Fixes
-* Fix Footer width (Scrollbars now included) 
-    Commit -> f0e8336f78e13dae9806e7ac32ea276416776692
-    Commit -> 9a5d8925b0a5085dc1db433636993353bc444b46
-
+* Fix Footer width (Scrollbars now included)   
 ## Features
 * Auto Height ViewPort
 
