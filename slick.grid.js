@@ -1944,10 +1944,11 @@
             m.width = 0;
 
             if (typeof(m.columns) !== 'undefined')
-              m.columns.forEach(function () {
+              for(var i in m.columns)
+              {
                 var $headerColumn = $groupHeader.next().children(':eq(' + (currentColumnIndex++) + ')');
                 m.width += $headerColumn.outerWidth();
-              })
+              }
 
             $groupHeaderColumn.width(m.width - headerColumnWidthDiff);
 
