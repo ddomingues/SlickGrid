@@ -1,3 +1,13 @@
+# We adding some Features and Fixes in this Fork for the X-SlickGrid
+## Fixes
+* Fix Footer width (Scrollbars now included) 
+    Commit -> f0e8336f78e13dae9806e7ac32ea276416776692
+    Commit -> 9a5d8925b0a5085dc1db433636993353bc444b46
+
+## Features
+* Auto Height ViewPort
+
+
 # [X-SlickGrid](https://ddomingues.github.io/X-SlickGrid) [![Code Climate](https://codeclimate.com/github/ddomingues/X-SlickGrid.png)](https://codeclimate.com/github/ddomingues/X-SlickGrid)
 
 X-SlickGrid is a extension of the great [SlickGrid](https://github.com/mleibman/SlickGrid)
