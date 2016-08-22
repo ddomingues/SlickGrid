@@ -3745,13 +3745,14 @@
 
       function scrollCellIntoView(row, cell, doPaging) {
         // Don't scroll to frozen cells
-        if (cell <= options.frozenColumn) {
+        if (cell <= options.frozenColumn)
           return;
-        }
 
-        if (row < actualFrozenRow) {
+        if (row < actualFrozenRow
+          || actualFrozenRow === -1)
           scrollRowIntoView(row, doPaging);
-        }
+        else
+          console.log("row is frozen");
 
         var colspan = getColspan(row, cell);
         var left = columnPosLeft[cell],
@@ -3763,7 +3764,7 @@
           handleScroll();
           render();
         } else if (right > scrollRight) {
-          $viewportScrollContainerX.scrollLeft(Math.min(left, right - $viewportScrollContainerX[0].clientWidth));
+          $viewportScrollContainerX.scrollLeft(Math.min(left, right));
           handleScroll();
           render();
         }
@@ -4084,6 +4085,8 @@
             render();
           }
         }
+        else
+          console.log("row is frozen");
       }
 
       function scrollRowToTop(row) {
