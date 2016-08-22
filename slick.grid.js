@@ -279,6 +279,7 @@
         columnDefaults.width = options.defaultColumnWidth;
         columns = fillTreeColumns(columns);
         treeColumns = new Slick.TreeColumns(columns);
+        treeColumns = new Slick.TreeColumns(columns);
 
         columns = treeColumns.extractColumns();
 
@@ -3615,6 +3616,9 @@
       }
 
       function getCellFromPoint(x, y) {
+
+        y -= (options.rowHeight * (treeColumns.getDepth() + 1));
+
         var row = getRowFromPosition(y);
         var cell = 0;
 
@@ -3795,7 +3799,7 @@
               : frozenRowsHeight;
           }
 
-          cell = getCellFromPoint($activeCellOffset.left, Math.ceil($activeCellOffset.top) - rowOffset);
+          var cell = getCellFromPoint($activeCellOffset.left, Math.ceil($activeCellOffset.top) - rowOffset);
 
           activeRow = cell.row;
           activeCell = activePosX = activeCell = activePosX = getCellFromNode(activeCellNode[0]);

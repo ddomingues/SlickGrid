@@ -29,6 +29,10 @@
         .slick-row.selected .cell-selection {
             background-color: transparent; /* show default selected row background */
         }
+
+        .slick-cell.frozen:last-child, .slick-header-column.frozen:last-child {
+            border-right: 1.5px dotted darkblue !important;
+        }
     </style>
 </head>
 <body>
@@ -68,17 +72,27 @@
 <script src="../controls/slick.columnpicker.js"></script>
 
 <script>
+    $("#myGrid").mousedown(
+            function (e) {
+                var mousePos = {x: e.pageX, y: e.pageY};
+                console.log(mousePos);
+            }
+    );
+
     var dataView;
     var grid;
     var data = [];
     var columns = JSON.parse($.ajax({type: "GET", url: "../data/col2.json", async: false}).responseText);
 
     var options = {
+        editable: true,
+        enableAddRow: true,
+        enableCellNavigation: true,
+        asyncEditorLoading: true,
         forceFitColumns: false,
-        topPanelHeight: 25,
+        autoEdit: false,
         showFooterRow: true,
         explicitInitialization: true,
-        totals: ['duration'],
         frozenColumn: 9
     };
 
@@ -137,7 +151,7 @@
             var d = (data[i] = {});
 
             d["id"] = "id_" + i;
-            d["num"] = i;
+            d["QM08#Employees_Calc"] = i;
             d["title"] = "Task " + i;
             d["duration"] = 5;
             d["percentComplete"] = Math.round(Math.random() * 100);
