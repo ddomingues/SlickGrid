@@ -961,6 +961,7 @@
 
         for (var index = 0; index < $groupHeadersL.length; index++) {
 
+          columnsLength = 0;
           $groupHeadersL[index].empty();
           $groupHeadersR[index].empty();
 
@@ -971,6 +972,7 @@
 
             if (typeof(m.extractColumns) === 'function')
               columnsLength += m.extractColumns().length;
+
 
             if (hasFrozenColumns() && index == 0 && (columnsLength - 1) === options.frozenColumn)
               frozenColumnsValid = true;
@@ -1098,9 +1100,8 @@
         depth--;
         for (var i in cols) {
           count++;
-          if (cols[i].hasOwnProperty('columns')) {
+          if (cols[i].hasOwnProperty('columns'))
             cols[i].columns = fillColumnsTree(depth, cols[i].columns, count);
-          }
           else if (depth >= 1) {
             var col = [{
               id: "dummy#" + depth + "_" + i + "_" + count,
@@ -1109,7 +1110,7 @@
             }];
             depth--;
             return col;
-          };
+          }
         }
         return cols;
       }
@@ -1668,7 +1669,7 @@
         if (hasFrozenColumns()) {
           $headerScrollContainer = $headerScrollerR;
           $headerRowScrollContainer = $headerRowScrollerR;
-          $footerRowScrollContainer = $footerRowScrollerR
+          $footerRowScrollContainer = $footerRowScrollerR;
 
           if (hasFrozenRows) {
             if (options.frozenBottom) {
@@ -2596,9 +2597,9 @@
           return;
         }
 
-        paneTopH = 0
-        paneBottomH = 0
-        viewportTopH = 0
+        paneTopH = 0;
+        paneBottomH = 0;
+        viewportTopH = 0;
         viewportBottomH = 0;
 
         getViewportWidth();
@@ -4410,7 +4411,7 @@
             scrollCellIntoView(pos.row, pos.cell, !isAddNewRow);
           }
 
-          setActiveCellInternal(getCellNode(pos.row, pos.cell))
+          setActiveCellInternal(getCellNode(pos.row, pos.cell));
           activePosX = pos.posX;
           return true;
         } else {
