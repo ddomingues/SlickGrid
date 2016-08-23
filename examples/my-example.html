@@ -72,13 +72,6 @@
 <script src="../controls/slick.columnpicker.js"></script>
 
 <script>
-    $("#myGrid").mousedown(
-            function (e) {
-                var mousePos = {x: e.pageX, y: e.pageY};
-                console.log(mousePos);
-            }
-    );
-
     var dataView;
     var grid;
     var data = [];
@@ -180,7 +173,12 @@
         grid.onCellChange.subscribe(function (e, args) {
             dataView.updateItem(args.item.id, args.item);
         });
-
+        grid.onScroll.subscribe(function (e, args) {
+            console.log("Click");
+        });
+        grid.onClick.subscribe(function (e, args) {
+            console.log("Click");
+        });
         grid.onAddNewRow.subscribe(function (e, args) {
             var item = {
                 "num": data.length,

@@ -279,7 +279,6 @@
         columnDefaults.width = options.defaultColumnWidth;
         columns = fillTreeColumns(columns);
         treeColumns = new Slick.TreeColumns(columns);
-        treeColumns = new Slick.TreeColumns(columns);
 
         columns = treeColumns.extractColumns();
 
@@ -879,21 +878,7 @@
       function getHeaderRowColumn(columnId) {
         var idx = getColumnIndex(columnId);
 
-        var $headerRowTarget;
-
-        if (hasFrozenColumns()) {
-          if (idx <= options.frozenColumn) {
-            $headerRowTarget = $headerRowL;
-          } else {
-            $headerRowTarget = $headerRowR;
-
-            idx -= options.frozenColumn + 1;
-          }
-        } else {
-          $headerRowTarget = $headerRowL;
-        }
-
-        var $header = $headerRowTarget.children().eq(idx);
+        var $header = $headers.children().eq(idx);
         return $header && $header[0];
       }
 
@@ -3616,8 +3601,6 @@
       }
 
       function getCellFromPoint(x, y) {
-
-        y -= (options.rowHeight * (treeColumns.getDepth() + 1));
 
         var row = getRowFromPosition(y);
         var cell = 0;
