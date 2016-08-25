@@ -16,6 +16,7 @@
  *     and do proper cleanup.
  *
  */
+
 (function (factory) {
   if (typeof define === 'function' && define.amd) {
     define(['jquery'], factory);
@@ -993,6 +994,36 @@
           $(this).removeClass("ui-state-hover");
         }
 
+        function createHeaderNode(column) {
+
+          var header = $("<div class='ui-state-default slick-header-column' />")
+            .html("<span class='slick-column-name'>" + column.name + "</span>")
+            .width(column.width - headerColumnWidthDiff)
+            .attr("id", "" + uid + column.id)
+            .attr("title", column.toolTip || "")
+            .data("column", column)
+            .addClass(m.headerCssClass || "")
+            .addClass(hasFrozenColumns() && i <= options.frozenColumn ? 'frozen' : '');
+
+          if (options.enableColumnReorder || m.sortable) {
+            header
+              .on('mouseenter', onMouseEnter)
+              .on('mouseleave', onMouseLeave);
+          }
+
+          if (m.sortable) {
+            header.addClass("slick-header-sortable");
+            header.append("<span class='slick-sort-indicator' />");
+          }
+
+          trigger(self.onHeaderCellRendered, {
+            "node": header[0],
+            "column": column
+          });
+
+          return header[0];
+        }
+
         $headers.find(".slick-header-column")
           .each(function () {
             var columnDef = $(this).data("column");
@@ -1026,37 +1057,13 @@
         $headerRowL.empty();
         $headerRowR.empty();
 
+        var headerArrL = [];
+        var headerArrR = [];
+
         for (var i = 0; i < columns.length; i++) {
           var m = columns[i];
 
-          var $headerTarget = hasFrozenColumns() ? ((i <= options.frozenColumn) ? $headerL : $headerR) : $headerL;
           var $headerRowTarget = hasFrozenColumns() ? ((i <= options.frozenColumn) ? $headerRowL : $headerRowR) : $headerRowL;
-
-          var header = $("<div class='ui-state-default slick-header-column' />")
-            .html("<span class='slick-column-name'>" + m.name + "</span>")
-            .width(m.width - headerColumnWidthDiff)
-            .attr("id", "" + uid + m.id)
-            .attr("title", m.toolTip || "")
-            .data("column", m)
-            .addClass(m.headerCssClass || "")
-            .addClass(hasFrozenColumns() && i <= options.frozenColumn ? 'frozen' : '')
-            .appendTo($headerTarget);
-
-          if (options.enableColumnReorder || m.sortable) {
-            header
-              .on('mouseenter', onMouseEnter)
-              .on('mouseleave', onMouseLeave);
-          }
-
-          if (m.sortable) {
-            header.addClass("slick-header-sortable");
-            header.append("<span class='slick-sort-indicator' />");
-          }
-
-          trigger(self.onHeaderCellRendered, {
-            "node": header[0],
-            "column": m
-          });
 
           if (options.showHeaderRow) {
             var headerRowCell = $("<div class='ui-state-default slick-headerrow-column l" + i + " r" + i + "'></div>")
@@ -1068,7 +1075,12 @@
               "column": m
             });
           }
+
+          hasFrozenColumns() ? ((i <= options.frozenColumn) ? headerArrL.push(createHeaderNode(m)) : headerArrR.push(createHeaderNode(m))) : headerArrL.push(createHeaderNode(m));
         }
+
+        $headerL.append(headerArrL);
+        $headerR.append(headerArrR);
 
         setSortColumns(sortColumns);
         setupColumnResize();
