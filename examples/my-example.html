@@ -20,30 +20,15 @@
     <!-- SlickGrid-Plugins Stylesheets -->
     <link rel="stylesheet" href="../plugins/slick.headerbuttons.css" type="text/css"/>
 
+    <!-- SlickGrid-Plugin-HeaderButtons-Command-Style -->
     <style>
-        .cell-title {
-            font-weight: bold;
+        .icon-highlight-off,
+        .icon-highlight-on {
+            background-image: url(../images/bullet_blue.png);
         }
 
-        .cell-effort-driven, .text-center {
-            text-align: center;
-        }
-
-        .cell-selection {
-            border-right-color: silver;
-            border-right-style: solid;
-            background: #f5f5f5;
-            color: gray;
-            /*text-align: right;*/
-            font-size: 10px;
-        }
-
-        .slick-row.selected .cell-selection {
-            background-color: transparent; /* show default selected row background */
-        }
-
-        .slick-cell.frozen:last-child, .slick-header-column.frozen:last-child {
-            border-right: 1.5px dotted darkblue !important;
+        .icon-highlight-off {
+            opacity: 0.2;
         }
     </style>
 </head>
@@ -89,24 +74,11 @@
 <script src="../plugins/slick.headerbuttons.js"></script>
 
 <script>
+    /// Define Grid-Objects ///
     var dataView;
     var grid;
     var data = [];
     var columns = JSON.parse($.ajax({type: "GET", url: "../data/col2.json", async: false}).responseText);
-    var headerButton = {
-        header: {
-            buttons: [
-                {
-                    image: "../images/tag_red.png"
-                }
-            ]
-        }
-    };
-
-    for (i in columns) {
-        $.extend(true, columns[i], headerButton);
-    }
-
     var options = {
         editable: true,
         enableAddRow: true,
@@ -118,6 +90,27 @@
         explicitInitialization: true,
         frozenColumn: 9
     };
+
+    /// Define Plugins-Objects ///
+
+    /// Define Plugins-Objects-HeaderButtons ///
+    var columnsWithHighlightingById = {};
+    var headerButton = {
+        header: {
+            buttons: [
+                {
+                    cssClass: "icon-highlight-off",
+                    command: "toggle-highlight",
+                    tooltip: "Highlight negative numbers."
+                }
+            ]
+        }
+    };
+
+    /// Extend Grid-Objects ///
+    for (i in columns) {
+        $.extend(true, columns[i], headerButton);
+    }
 
     var sortcol = "title";
     var sortdir = 1;
@@ -149,7 +142,7 @@
     /// Set SlickGrid ///
     $(function () {
 
-        /// Set Data ///
+        /// Set SlickGrid-Data ///
         for (var i = 0; i < 50000; i++) {
             var d = (data[i] = {});
 
@@ -172,10 +165,6 @@
         /// Set SlickGrid-Controls ///
         var pager = new Slick.Controls.Pager(dataView, grid, $("#pager"));
         var columnpicker = new Slick.Controls.ColumnPicker(columns, grid, options);
-
-        /// Set SlickGrid-Plugins ///
-        var headerButtonsPlugin = new Slick.Plugins.HeaderButtons();
-        grid.registerPlugin(headerButtonsPlugin);
 
         /// Set SlickGrid-Grid-Events ///
         grid.onCellChange.subscribe(function (e, args) {
@@ -267,7 +256,36 @@
         dataView.endUpdate();
 
         /// Initialize SlickGrid-Grid ///
-        grid.init();
+        grid.init();/// Set SlickGrid-Plugins ///
+
+        /// Set SlickGrid-Plugins-HeaderButtons ///
+        var headerButtonsPlugin = new Slick.Plugins.HeaderButtons();
+
+        /// Set SlickGrid-Plugins-HeaderButtons-Commands ///
+        headerButtonsPlugin.onCommand.subscribe(function (e, args) {
+            var column = args.column;
+            var button = args.button;
+            var command = args.command;
+
+            if (command == "toggle-highlight") {
+                if (button.cssClass == "icon-highlight-on") {
+                    delete columnsWithHighlightingById[column.id];
+                    button.cssClass = "icon-highlight-off";
+                    button.tooltip = "Highlight negative numbers."
+                } else {
+                    columnsWithHighlightingById[column.id] = true;
+                    button.cssClass = "icon-highlight-on";
+                    button.tooltip = "Remove highlight."
+                }
+
+                grid.invalidate();
+            }
+        });
+
+        /// Register SlickGrid-Plugins ///
+
+        /// Register SlickGrid-Plugins-HeaderButtons ///
+        grid.registerPlugin(headerButtonsPlugin);
     })
 </script>
 </body>

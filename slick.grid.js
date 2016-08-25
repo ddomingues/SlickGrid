@@ -477,7 +477,6 @@
 
           updateColumnCaches();
           createColumnHeaders();
-          createColumnGroupHeaders();
           createColumnFooter();
           setupColumnSort();
           createCssRules();
@@ -1021,6 +1020,11 @@
             header.append("<span class='slick-sort-indicator' />");
           }
 
+          trigger(self.onHeaderCellRendered, {
+            "node": header[0],
+            "column": column
+          });
+
           return header[0];
         }
 
@@ -1087,6 +1091,8 @@
         if (options.enableColumnReorder) {
           setupColumnReorder();
         }
+
+        createColumnGroupHeaders();
       }
 
       function fillTreeColumns(columns) {
