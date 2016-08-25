@@ -964,7 +964,7 @@
             if (hasFrozenColumns() && index == 0 && (columnsLength - 1) === options.frozenColumn)
               frozenColumnsValid = true;
 
-            $("<div class='ui-state-default slick-group-header-column' />")
+            var header = $("<div class='ui-state-default slick-group-header-column' />")
               .html("<span class='slick-column-name'>" + m.name + "</span>")
               .attr("id", "" + uid + m.id)
               .attr("title", m.toolTip || "")
@@ -972,6 +972,11 @@
               .addClass(m.headerCssClass || "")
               .addClass(hasFrozenColumns() && (columnsLength - 1) > options.frozenColumn ? 'frozen' : '')
               .appendTo(hasFrozenColumns() && (columnsLength - 1) > options.frozenColumn ? $groupHeadersR[index] : $groupHeadersL[index]);
+
+            trigger(self.onHeaderCellRendered, {
+              "node": header[0],
+              "column": m
+            });
           }
 
           if (hasFrozenColumns() && index == 0 && !frozenColumnsValid) {
@@ -1015,11 +1020,6 @@
             header.addClass("slick-header-sortable");
             header.append("<span class='slick-sort-indicator' />");
           }
-
-          trigger(self.onHeaderCellRendered, {
-            "node": header[0],
-            "column": column
-          });
 
           return header[0];
         }
