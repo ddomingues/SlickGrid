@@ -490,12 +490,65 @@
       mapToId(treeColumns);
     }
 
+    function createEmptyColumnsToDepth(depth) {
+      depth--;
+      var columnsArr = [];
+      var column = {};
+      if (depth > 1) {
+        column = {
+          id: Math.random(),
+          name: "",
+          columns: createEmptyColumnsToDepth(depth)
+        };
+      } else {
+        column = {
+          id: Math.random(),
+          name: ""
+        };
+      }
+      columnsArr.push(column);
+
+      return columnsArr;
+    }
+
+    function createHiddenColumn(id) {
+      var column = columnsById[id];
+      var _treeColumns = new Slick.TreeColumns(column);
+      if (column.hiddenColumn) {
+        column = column.hiddenColumn;
+      } else {
+        column = {
+          id: column.id,
+          name: "",
+          header: column.header,
+          hiddenColumn: column,
+          columns: createEmptyColumnsToDepth(_treeColumns.getDepth())
+        };
+      }
+      return column;
+    }
+
+    function toggleColumn(node, id) {
+      for (var i in node) {
+        if (node[i].id) {
+          if (node[i].id == id) {
+            node[i] = createHiddenColumn(id);
+            break;
+          } else {
+            if (node[i].columns) {
+              node[i].columns = toggleColumn(node[i].columns, id);
+            }
+          }
+        }
+      }
+      return node;
+    }
+
     function mapToId(columns) {
-      for(var i in columns)
-      {
+      for (var i in columns) {
         columnsById[columns[i].id] = columns[i];
 
-        if(columns[i].columns)
+        if (columns[i].columns)
           mapToId(columns[i].columns)
       }
     }
@@ -549,9 +602,9 @@
       if (depth == current) {
 
         if (node.length)
-          node.forEach(function(n) {
+          node.forEach(function (n) {
             if (n.columns)
-              n.extractColumns = function() {
+              n.extractColumns = function () {
                 return extractColumns(n);
               };
           });
@@ -608,7 +661,7 @@
     };
 
     this.extractColumns = function () {
-      return this.hasDepth()? extractColumns(treeColumns): treeColumns;
+      return this.hasDepth() ? extractColumns(treeColumns) : treeColumns;
     };
 
     this.getDepth = function () {
@@ -617,6 +670,10 @@
 
     this.getColumnsInDepth = function (depth) {
       return getColumnsInDepth(treeColumns, depth);
+    };
+
+    this.toggleColumn = function (columnId) {
+      return toggleColumn(cloneTreeColumns(), columnId);
     };
 
     this.getColumnsInGroup = function (groups) {
@@ -648,6 +705,7 @@
     }
   }
 
-}));
+}))
+;
 
 

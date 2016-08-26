@@ -208,7 +208,6 @@
         if ($input.is(":checked"))
           visibleColumns.push($input.data('columnId'));
       });
-
       var $visibleColumns = treeColumns
         .filter(function () {
           return this.columns || visibleColumns.indexOf(this.id) >= 0;
@@ -281,7 +280,7 @@
             aggregators: [],
             aggregateCollapsed: true,
             lazyTotalsCalculation: true
-          }
+          };;
 
           if (typeof column.collapsed !== 'undefined')
             group.collapsed = column.collapsed;
@@ -405,4 +404,3 @@
   // Slick.Controls.ColumnPicker
   $.extend(true, window, { Slick: { Controls: { ColumnPicker: SlickColumnPicker }}});
 }));
-

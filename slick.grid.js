@@ -280,7 +280,6 @@
         columnDefaults.width = options.defaultColumnWidth;
         columns = fillTreeColumns(columns);
         treeColumns = new Slick.TreeColumns(columns);
-
         columns = treeColumns.extractColumns();
 
         columnsById = {};
@@ -840,19 +839,28 @@
         if (!initialized) {
           return;
         }
+
+        var columnDef;
+        var $header;
         var idx = getColumnIndex(columnId);
+
         if (idx == null) {
-          return;
+          columnDef = treeColumns.getById(columnId);
+          $header = $("#" + uid + columnId);
+        } else {
+          columnDef = columns[idx];
+          $header = $headers.children().eq(idx);
         }
 
-        var columnDef = columns[idx];
-        var $header = $headers.children().eq(idx);
         if ($header) {
-          if (title !== undefined) {
-            columns[idx].name = title;
-          }
-          if (toolTip !== undefined) {
-            columns[idx].toolTip = toolTip;
+
+          if (idx !== null) {
+            if (title !== undefined) {
+              columns[idx].name = title;
+            }
+            if (toolTip !== undefined) {
+              columns[idx].toolTip = toolTip;
+            }
           }
 
           trigger(self.onBeforeHeaderCellDestroy, {
@@ -1117,6 +1125,11 @@
           }
         }
         return cols;
+      }
+
+      function toggleColumn(column) {
+        var newColumnsDef = treeColumns.toggleColumn(column.id);;
+        setColumns(newColumnsDef);
       }
 
       function setupColumnSort() {
@@ -2102,7 +2115,6 @@
 
           invalidateAllRows();
           createColumnHeaders();
-          createColumnGroupHeaders();
           createColumnFooter();
           removeCssRules();
           createCssRules();
@@ -4717,6 +4729,7 @@
         "getSelectedRows": getSelectedRows,
         "setSelectedRows": setSelectedRows,
         "getContainerNode": getContainerNode,
+        "toggleColumn": toggleColumn,
 
         "render": render,
         "invalidate": invalidate,

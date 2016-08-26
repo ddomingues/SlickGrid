@@ -22,13 +22,12 @@
 
     <!-- SlickGrid-Plugin-HeaderButtons-Command-Style -->
     <style>
-        .icon-highlight-off,
         .icon-highlight-on {
-            background-image: url(../images/bullet_blue.png);
+            background-image: url(../images/expand.gif);
         }
 
         .icon-highlight-off {
-            opacity: 0.2;
+            background-image: url(../images/collapse.gif);
         }
     </style>
 </head>
@@ -68,9 +67,6 @@
 <script src="../controls/slick.columnpicker.js"></script>
 
 <!-- SlickGrid-Plugins -->
-<script src="../plugins/slick.cellrangedecorator.js"></script>
-<script src="../plugins/slick.cellrangeselector.js"></script>
-<script src="../plugins/slick.cellselectionmodel.js"></script>
 <script src="../plugins/slick.headerbuttons.js"></script>
 
 <script>
@@ -101,16 +97,25 @@
                 {
                     cssClass: "icon-highlight-off",
                     command: "toggle-highlight",
-                    tooltip: "Highlight negative numbers."
+                    tooltip: "Collapse column."
                 }
             ]
         }
     };
 
-    /// Extend Grid-Objects ///
-    for (i in columns) {
-        $.extend(true, columns[i], headerButton);
+    /// Define Plugins-Functions ///
+
+    /// Define Plugins-Functions-HeaderButtons ///
+    function implementHeaderButtons(cols, headerButton) {
+        for (var i in cols) {
+            $.extend(true, cols[i], headerButton);
+            if (cols[i].columns)
+                implementHeaderButtons(cols[i].columns, headerButton);
+        }
     }
+
+    /// Extend Grid-Objects ///
+    implementHeaderButtons(columns, headerButton);
 
     var sortcol = "title";
     var sortdir = 1;
@@ -256,7 +261,9 @@
         dataView.endUpdate();
 
         /// Initialize SlickGrid-Grid ///
-        grid.init();/// Set SlickGrid-Plugins ///
+        grid.init();
+
+        /// Set SlickGrid-Plugins ///
 
         /// Set SlickGrid-Plugins-HeaderButtons ///
         var headerButtonsPlugin = new Slick.Plugins.HeaderButtons();
@@ -271,11 +278,13 @@
                 if (button.cssClass == "icon-highlight-on") {
                     delete columnsWithHighlightingById[column.id];
                     button.cssClass = "icon-highlight-off";
-                    button.tooltip = "Highlight negative numbers."
+                    button.tooltip = "Expand column.";;
+                    grid.toggleColumn(column);
                 } else {
                     columnsWithHighlightingById[column.id] = true;
                     button.cssClass = "icon-highlight-on";
-                    button.tooltip = "Remove highlight."
+                    button.tooltip = "Collapse column.";;
+                    grid.toggleColumn(column);
                 }
 
                 grid.invalidate();
