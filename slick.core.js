@@ -490,20 +490,22 @@
       mapToId(treeColumns);
     }
 
-    function createEmptyColumnsToDepth(depth) {
+    function createEmptyHiddenColumns(depth) {
       depth--;
       var columnsArr = [];
       var column = {};
       if (depth > 1) {
         column = {
-          id: Math.random(),
+          id: depth + Math.random(),
           name: "",
-          columns: createEmptyColumnsToDepth(depth)
+          hiddenColumn: {},
+          columns: createEmptyHiddenColumns(depth)
         };
       } else {
         column = {
-          id: Math.random(),
-          name: ""
+          id: depth + Math.random(),
+          name: "",
+          hiddenColumn: {}
         };
       }
       columnsArr.push(column);
@@ -522,7 +524,7 @@
           name: "",
           header: column.header,
           hiddenColumn: column,
-          columns: createEmptyColumnsToDepth(_treeColumns.getDepth())
+          columns: createEmptyHiddenColumns(_treeColumns.getDepth())
         };
       }
       return column;

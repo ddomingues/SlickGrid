@@ -152,6 +152,7 @@
       var headerColumnWidthDiff = 0, headerColumnHeightDiff = 0, // border+padding
         cellWidthDiff = 0, cellHeightDiff = 0;
       var absoluteColumnMinWidth;
+      var hiddenColumnWidth = 30;
       var hasFrozenRows = false;
       var frozenRowsHeight = 0;
       var actualFrozenRow = -1;
@@ -615,7 +616,12 @@
         headersWidth = headersWidthL = headersWidthR = 0;
 
         for (var i = 0, ii = columns.length; i < ii; i++) {
-          var width = columns[i].width;
+          var width;
+          if (columns[i].hiddenColumn) {
+            width = hiddenColumnWidth;
+          } else {
+            width = columns[i].width;
+          }
 
           if (( options.frozenColumn ) > -1 && ( i > options.frozenColumn )) {
             headersWidthR += width;
@@ -1010,7 +1016,7 @@
 
           var header = $("<div class='ui-state-default slick-header-column' />")
             .html("<span class='slick-column-name'>" + column.name + "</span>")
-            .width(column.width - headerColumnWidthDiff)
+            .width(column.hiddenColumn ? hiddenColumnWidth - headerColumnWidthDiff : column.width - headerColumnWidthDiff)
             .attr("id", "" + uid + column.id)
             .attr("title", column.toolTip || "")
             .data("column", column)
@@ -1128,7 +1134,7 @@
       }
 
       function toggleColumn(column) {
-        var newColumnsDef = treeColumns.toggleColumn(column.id);;
+        var newColumnsDef = treeColumns.toggleColumn(column.id);
         setColumns(newColumnsDef);
       }
 
@@ -1952,7 +1958,6 @@
           $().add($groupHeadersL[depth]).add($groupHeadersR[depth]).each(function (i) {
             var $groupHeader = $(this),
               currentColumnIndex = 0;
-
             $groupHeader.width(i == 0 ? getHeadersWidthL() : getHeadersWidthR());
 
             $groupHeader.children().each(function () {
@@ -1962,11 +1967,12 @@
 
               m.width = 0;
 
-              if (typeof(m.columns) !== 'undefined')
+              if (typeof(m.columns) !== 'undefined') {
                 for (var i in m.columns) {
                   var $headerColumn = $groupHeader.next().children(':eq(' + (currentColumnIndex++) + ')');
                   m.width += $headerColumn.outerWidth();
                 }
+              }
 
               $groupHeaderColumn.width(m.width - headerColumnWidthDiff);
 
@@ -1996,6 +2002,7 @@
       function applyColumnWidths() {
         var x = 0, w, rule;
         for (var i = 0; i < columns.length; i++) {
+
           w = columns[i].width;
 
           rule = getColumnCssRules(i);
