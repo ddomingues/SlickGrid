@@ -496,14 +496,14 @@
       var column = {};
       if (depth > 1) {
         column = {
-          id: depth + Math.random(),
+          id: "emptyhidden_" + depth + Math.random(),
           name: "",
           hiddenColumn: {},
           columns: createEmptyHiddenColumns(depth)
         };
       } else {
         column = {
-          id: depth + Math.random(),
+          id: "emptyhidden_" + depth + Math.random(),
           name: "",
           hiddenColumn: {}
         };
