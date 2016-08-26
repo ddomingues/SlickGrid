@@ -11,7 +11,7 @@
   $.extend(true, window, {
     "Slick": {
       "Plugins": {
-        "HeaderButtons": HeaderButtons
+        "HeaderButtonColumnCollapse": HeaderButtonColumnCollapse
       }
     }
   });
@@ -70,7 +70,7 @@
    * @class Slick.Plugins.HeaderButtons
    * @constructor
    */
-  function HeaderButtons(options) {
+  function HeaderButtonColumnCollapse(options) {
     var _grid;
     var _self = this;
     var _handler = new Slick.EventHandler();
@@ -178,8 +178,8 @@
     $.extend(this, {
       "init": init,
       "destroy": destroy,
-
       "onCommand": new Slick.Event()
     });
   }
-}));
+}))
+;

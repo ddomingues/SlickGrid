@@ -1134,10 +1134,16 @@
       }
 
       function toggleColumn(column) {
-        var newColumnsDef = treeColumns.toggleColumn(column.id);
-        setColumns(newColumnsDef);
-        //applyColumnGroupHeaderWidths();
-        //updateCanvasWidth(true);
+
+        if ($("#" + uid + column.id).hasClass("frozen")) {
+          alert("Frozencolumns are not allowed to collapse.");
+        } else {
+          treeColumns = new Slick.TreeColumns(
+            treeColumns.toggleColumn(column.id)
+          );
+          columns = treeColumns.extractColumns();
+          setColumns(columns);
+        }
       }
 
       function setupColumnSort() {

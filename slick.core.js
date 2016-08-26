@@ -509,23 +509,32 @@
         };
       }
       columnsArr.push(column);
-
       return columnsArr;
     }
 
     function createHiddenColumn(id) {
       var column = columnsById[id];
       var _treeColumns = new Slick.TreeColumns(column);
+      var columnDepth = _treeColumns.getDepth();
       if (column.hiddenColumn) {
         column = column.hiddenColumn;
       } else {
-        column = {
-          id: column.id,
-          name: "",
-          header: column.header,
-          hiddenColumn: column,
-          columns: createEmptyHiddenColumns(_treeColumns.getDepth())
-        };
+        if (columnDepth > 1) {
+          column = {
+            id: column.id,
+            name: "",
+            header: column.header,
+            hiddenColumn: column,
+            columns: createEmptyHiddenColumns(columnDepth)
+          };
+        } else {
+          column = {
+            id: column.id,
+            name: "",
+            header: column.header,
+            hiddenColumn: column
+          };
+        }
       }
       return column;
     }

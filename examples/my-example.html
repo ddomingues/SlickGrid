@@ -15,10 +15,9 @@
 
     <!-- SlickGrid-Controls Stylesheets -->
     <link rel="stylesheet" href="../controls/slick.pager.css" type="text/css"/>
-    <link rel="stylesheet" href="../controls/slick.columnpicker.css" type="text/css"/>
 
     <!-- SlickGrid-Plugins Stylesheets -->
-    <link rel="stylesheet" href="../plugins/slick.headerbuttons.css" type="text/css"/>
+    <link rel="stylesheet" href="../plugins/slick.headerbutton.columncollapse.css" type="text/css"/>
 
     <!-- SlickGrid-Plugin-HeaderButtons-Command-Style -->
     <style>
@@ -50,7 +49,7 @@
 
 <!-- Libraries -->
 <script src="../lib/firebugx.js"></script>
-<script src="../lib/jquery-1.11.2.js"></script>
+<script src="../lib/jquery-1.7.min.js"></script>
 <script src="../lib/jquery-ui-1.8.24.custom.min.js"></script>
 <script src="../lib/jquery.event.drag-2.2.js"></script>
 <script src="../lib/jquery.mousewheel.js"></script>
@@ -64,10 +63,9 @@
 
 <!-- SlickGrid-Conrols -->
 <script src="../controls/slick.pager.js"></script>
-<script src="../controls/slick.columnpicker.js"></script>
 
 <!-- SlickGrid-Plugins -->
-<script src="../plugins/slick.headerbuttons.js"></script>
+<script src="../plugins/slick.headerbutton.columncollapse.js"></script>
 
 <script>
     /// Define Grid-Objects ///
@@ -169,7 +167,6 @@
 
         /// Set SlickGrid-Controls ///
         var pager = new Slick.Controls.Pager(dataView, grid, $("#pager"));
-        var columnpicker = new Slick.Controls.ColumnPicker(columns, grid, options);
 
         /// Set SlickGrid-Grid-Events ///
         grid.onCellChange.subscribe(function (e, args) {
@@ -265,11 +262,11 @@
 
         /// Set SlickGrid-Plugins ///
 
-        /// Set SlickGrid-Plugins-HeaderButtons ///
-        var headerButtonsPlugin = new Slick.Plugins.HeaderButtons();
+        /// Set SlickGrid-Plugins-HeaderButton-ColumnCollapse ///
+        var headerButtonColumnCollapsePlugin = new Slick.Plugins.HeaderButtonColumnCollapse();
 
-        /// Set SlickGrid-Plugins-HeaderButtons-Commands ///
-        headerButtonsPlugin.onCommand.subscribe(function (e, args) {
+        /// Set SlickGrid-Plugins-HeaderButtons-ColumnCollapse-Commands ///
+        headerButtonColumnCollapsePlugin.onCommand.subscribe(function (e, args) {
             var column = args.column;
             var button = args.button;
             var command = args.command;
@@ -278,12 +275,12 @@
                 if (button.cssClass == "icon-highlight-on") {
                     delete columnsWithHighlightingById[column.id];
                     button.cssClass = "icon-highlight-off";
-                    button.tooltip = "Expand column.";;
+                    button.tooltip = "Collapse " + column.name + ".";
                     grid.toggleColumn(column);
                 } else {
                     columnsWithHighlightingById[column.id] = true;
                     button.cssClass = "icon-highlight-on";
-                    button.tooltip = "Collapse column.";;
+                    button.tooltip = "Expand " + column.name + ".";
                     grid.toggleColumn(column);
                 }
 
@@ -294,7 +291,7 @@
         /// Register SlickGrid-Plugins ///
 
         /// Register SlickGrid-Plugins-HeaderButtons ///
-        grid.registerPlugin(headerButtonsPlugin);
+        grid.registerPlugin(headerButtonColumnCollapsePlugin);
     })
 </script>
 </body>
