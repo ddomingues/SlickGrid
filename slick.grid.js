@@ -968,11 +968,20 @@
           var groupColumns = treeColumns.getColumnsInDepth(index);
 
           for (var indexGroup in groupColumns) {
+            var isFrozenColumn = false;
             var m = groupColumns[indexGroup];
 
-            if (typeof(m.extractColumns) === 'function')
-              columnsLength += m.extractColumns().length;
+            if (typeof(m.extractColumns) === 'function') {
+              var extractedColumns = m.extractColumns();
 
+              for (var c in extractedColumns) {
+                if (options.frozenColumn >= columnsById[extractedColumns[c].id]) {
+                  isFrozenColumn = true;
+                  break;
+                }
+              }
+              columnsLength += extractedColumns.length;
+            }
 
             if (hasFrozenColumns() && index == 0 && (columnsLength - 1) === options.frozenColumn)
               frozenColumnsValid = true;
@@ -983,8 +992,8 @@
               .attr("title", m.toolTip || "")
               .data("column", m)
               .addClass(m.headerCssClass || "")
-              .addClass(hasFrozenColumns() && (columnsLength - 1) > options.frozenColumn ? 'frozen' : '')
-              .appendTo(hasFrozenColumns() && (columnsLength - 1) > options.frozenColumn ? $groupHeadersR[index] : $groupHeadersL[index]);
+              .addClass(hasFrozenColumns() && isFrozenColumn ? 'frozen' : '')
+              .appendTo(hasFrozenColumns() && !isFrozenColumn ? $groupHeadersR[index] : $groupHeadersL[index]);
 
             trigger(self.onHeaderCellRendered, {
               "node": header[0],
