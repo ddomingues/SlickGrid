@@ -135,7 +135,7 @@
 
           btn
             .bind("click", handleButtonClick)
-            .prependTo(args.node)
+            .appendTo(args.node);
         }
       }
     }

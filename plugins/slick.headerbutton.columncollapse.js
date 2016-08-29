@@ -95,7 +95,6 @@
       _handler.unsubscribeAll();
     }
 
-
     function handleHeaderCellRendered(e, args) {
       var column = args.column;
 
@@ -154,9 +153,25 @@
 
 
     function handleButtonClick(e) {
-      var command = $(this).data("command");
+
       var columnDef = $(this).data("column");
+      var command = $(this).data("command");
       var button = $(this).data("button");
+
+      if (command == "toggle-column") {
+
+        if (button.cssClass == "icon-column-expand") {
+          button.cssClass = "icon-column-collapse";
+          button.tooltip = "Collapse " + columnDef.hiddenColumn.name + ".";
+        } else {
+          button.cssClass = "icon-column-expand";
+          button.tooltip = "Expand " + columnDef.name + ".";
+        }
+      }
+
+      grid.toggleColumn(columnDef);
+
+      console.log(columnDef);
 
       if (command != null) {
         _self.onCommand.notify({

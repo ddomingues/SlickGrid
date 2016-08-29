@@ -24,6 +24,7 @@
     background-repeat: no-repeat;
     background-position: center center;
     cursor: pointer;
+    opacity: 0.8;
 }
 
 .slick-header-button-hidden {
@@ -36,4 +37,12 @@
 
 .slick-header-column:hover > .slick-header-button {
     width: 15px;
+}
+
+.icon-column-expand {
+    background-image: url(../images/expand.gif);
+}
+
+.icon-column-collapse {
+    background-image: url(../images/collapse.gif);
 }

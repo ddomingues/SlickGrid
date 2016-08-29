@@ -19,14 +19,10 @@
     <!-- SlickGrid-Plugins Stylesheets -->
     <link rel="stylesheet" href="../plugins/slick.headerbutton.columncollapse.css" type="text/css"/>
 
-    <!-- SlickGrid-Plugin-HeaderButtons-Command-Style -->
+    <!-- SlickGrid-FrozenColumns Style -->
     <style>
-        .icon-highlight-on {
-            background-image: url(../images/expand.gif);
-        }
-
-        .icon-highlight-off {
-            background-image: url(../images/collapse.gif);
+        .slick-cell.frozen:last-child, .slick-header-column.frozen:last-child {
+            border-right: 1.5px dotted darkblue !important;
         }
     </style>
 </head>
@@ -68,6 +64,8 @@
 <script src="../plugins/slick.headerbutton.columncollapse.js"></script>
 
 <script>
+    window.rerenderOnResize;
+
     /// Define Grid-Objects ///
     var dataView;
     var grid;
@@ -93,9 +91,9 @@
         header: {
             buttons: [
                 {
-                    cssClass: "icon-highlight-off",
-                    command: "toggle-highlight",
-                    tooltip: "Collapse column."
+                    cssClass: "icon-column-collapse",
+                    command: "toggle-column",
+                    tooltip: "Toggle column."
                 }
             ]
         }
@@ -264,29 +262,6 @@
 
         /// Set SlickGrid-Plugins-HeaderButton-ColumnCollapse ///
         var headerButtonColumnCollapsePlugin = new Slick.Plugins.HeaderButtonColumnCollapse();
-
-        /// Set SlickGrid-Plugins-HeaderButtons-ColumnCollapse-Commands ///
-        headerButtonColumnCollapsePlugin.onCommand.subscribe(function (e, args) {
-            var column = args.column;
-            var button = args.button;
-            var command = args.command;
-
-            if (command == "toggle-highlight") {
-                if (button.cssClass == "icon-highlight-on") {
-                    delete columnsWithHighlightingById[column.id];
-                    button.cssClass = "icon-highlight-off";
-                    button.tooltip = "Collapse " + column.name + ".";
-                    grid.toggleColumn(column);
-                } else {
-                    columnsWithHighlightingById[column.id] = true;
-                    button.cssClass = "icon-highlight-on";
-                    button.tooltip = "Expand " + column.name + ".";
-                    grid.toggleColumn(column);
-                }
-
-                grid.invalidate();
-            }
-        });
 
         /// Register SlickGrid-Plugins ///
 

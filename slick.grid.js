@@ -1132,7 +1132,7 @@
           else if (depth >= 1) {
             var col = [{
               id: "dummy#" + depth + "_" + i + "_" + count,
-              name: " ",
+              name: "",
               columns: cols
             }];
             depth--;

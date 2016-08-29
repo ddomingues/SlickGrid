@@ -517,6 +517,7 @@
       var _treeColumns = new Slick.TreeColumns(column);
       var columnDepth = _treeColumns.getDepth();
       if (column.hiddenColumn) {
+        column.hiddenColumn.header = column.header;
         column = column.hiddenColumn;
       } else {
         if (columnDepth > 1) {
