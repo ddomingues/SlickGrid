@@ -497,14 +497,14 @@
       if (depth > 1) {
         column = {
           id: "emptyhidden_" + depth + Math.random(),
-          name: "",
+          name: "&nbsp;",
           hiddenColumn: {},
           columns: createEmptyHiddenColumns(depth)
         };
       } else {
         column = {
           id: "emptyhidden_" + depth + Math.random(),
-          name: "",
+          name: "&nbsp;",
           hiddenColumn: {}
         };
       }
@@ -523,7 +523,7 @@
         if (columnDepth > 1) {
           column = {
             id: column.id,
-            name: "",
+            name: "&nbsp;",
             header: column.header,
             hiddenColumn: column,
             columns: createEmptyHiddenColumns(columnDepth)
@@ -531,7 +531,7 @@
         } else {
           column = {
             id: column.id,
-            name: "",
+            name: "&nbsp;",
             header: column.header,
             hiddenColumn: column
           };

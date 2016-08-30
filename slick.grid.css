@@ -24,7 +24,7 @@ classes should alter those!
   overflow: hidden;
   -o-text-overflow: ellipsis;
   text-overflow: ellipsis;
-  height: 16px;
+  height: 26px;
   line-height: 16px;
   margin: 0;
   padding: 4px;
@@ -209,4 +209,8 @@ classes should alter those!
   position: relative;
   outline: 0;
   width: 100%;
+}
+
+* {
+  box-sizing: border-box;
 }

@@ -171,8 +171,6 @@
 
       grid.toggleColumn(columnDef);
 
-      console.log(columnDef);
-
       if (command != null) {
         _self.onCommand.notify({
           "grid": _grid,
