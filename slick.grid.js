@@ -852,6 +852,9 @@
           $header = $headers.children().eq(idx);
         }
 
+        if (columnDef.hiddenColumn)
+          $header.find(".slick-resizable-handle").remove();
+
         if ($header) {
 
           if (idx !== null) {
@@ -1997,8 +2000,8 @@
         for (var i = 0, headers = $headers.children(), ii = headers.length; i < ii; i++) {
           h = $(headers[i]);
 
-          if (h.outerWidth() !== columns[i].width - headerColumnWidthDiff) {
-            h.outerWidth(columns[i].width - headerColumnWidthDiff);
+          if (h.width() !== columns[i].width - headerColumnWidthDiff) {
+            h.width(columns[i].width - headerColumnWidthDiff);
           }
         }
 
