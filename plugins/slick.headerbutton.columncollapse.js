@@ -116,7 +116,6 @@
 
     function handleHeaderCellRendered(e, args) {
       var column = args.column;
-      console.log(column);
       if (column.header
         && column.header.buttons
         && !column.isDummy

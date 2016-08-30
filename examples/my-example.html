@@ -17,6 +17,7 @@
     <link rel="stylesheet" href="../controls/slick.pager.css" type="text/css"/>
 
     <!-- SlickGrid-Plugins Stylesheets -->
+    <link rel="stylesheet" href="../plugins/slick.rowcollapse.css" type="text/css"/>
     <link rel="stylesheet" href="../plugins/slick.headerbutton.columncollapse.css" type="text/css"/>
 
     <!-- SlickGrid-FrozenColumns Style -->
@@ -61,11 +62,10 @@
 <script src="../controls/slick.pager.js"></script>
 
 <!-- SlickGrid-Plugins -->
+<script src="../plugins/slick.rowcollapse.js"></script>
 <script src="../plugins/slick.headerbutton.columncollapse.js"></script>
 
 <script>
-    window.rerenderOnResize;
-
     /// Define Grid-Objects ///
     var dataView;
     var grid;
@@ -81,7 +81,7 @@
         showFooterRow: true,
         explicitInitialization: true,
         syncColumnCellResize: true,
-        frozenColumn: 9
+        frozenColumn: 10
     };
 
     var sortcol = "title";
@@ -89,7 +89,8 @@
     var percentCompleteThreshold = 0;
     var searchString = "";
 
-    function myFilter(item, args) {
+    /// Set DataView-Filter ///
+    function filter(item, args) {
         if (item["percentComplete"] < args.percentCompleteThreshold) {
             return false;
         }
@@ -100,7 +101,6 @@
 
         return true;
     }
-
 
     $(".grid-header .ui-icon")
             .addClass("ui-state-default ui-corner-all")
@@ -115,14 +115,34 @@
     $(function () {
 
         /// Set SlickGrid-Data ///
+        var indent = 0;
+        var parents = [];
         for (var i = 0; i < 50000; i++) {
             var d = (data[i] = {});
+            var parent;
+
+            if (Math.random() > 0.8 && i > 0) {
+                indent++;
+                parents.push(i - 1);
+            } else if (Math.random() < 0.3 && indent > 0) {
+                indent--;
+                parents.pop();
+            }
+
+            if (parents.length > 0) {
+                parent = parents[parents.length - 1];
+            } else {
+                parent = null;
+            }
 
             d["id"] = "id_" + i;
+            d["indent"] = indent;
+            d["parent"] = parent;
+            d["Filiale"] = "Filiale_" + i;
             d["QM08#Employees_Calc"] = i;
             d["title"] = "Task " + i;
             d["duration"] = 5;
-            d["percentComplete"] = Math.round(Math.random() * 100);
+            d["Scope"] = Math.round(Math.random() * 100);
             d["start"] = "01/01/2009";
             d["finish"] = "01/05/2009";
             d["effortDriven"] = (i % 5 == 0);
@@ -133,9 +153,6 @@
 
         /// Set SlickGrid-Grid ///
         grid = new Slick.Grid("#myGrid", dataView, columns, options);
-
-        /// Set SlickGrid-Controls ///
-        var pager = new Slick.Controls.Pager(dataView, grid, $("#pager"));
 
         /// Set SlickGrid-Grid-Events ///
         grid.onCellChange.subscribe(function (e, args) {
@@ -216,6 +233,21 @@
             }
         });
 
+        /// Set SlickGrid-Controls ///
+        var pager = new Slick.Controls.Pager(dataView, grid, $("#pager"));
+
+        /// Set SlickGrid-Plugins ///
+
+        /// Set SlickGrid-Plugins-HeaderButton-ColumnCollapse ///
+        var rowCollapsePlugin = new Slick.Plugins.RowCollapse({column: "Filiale"});
+        var headerButtonColumnCollapsePlugin = new Slick.Plugins.HeaderButtonColumnCollapse();
+
+        /// Register SlickGrid-Plugins ///
+
+        /// Register SlickGrid-Plugins-HeaderButtons ///
+        grid.registerPlugin(rowCollapsePlugin);
+        grid.registerPlugin(headerButtonColumnCollapsePlugin);
+
         /// Initialize SlickGrid-DataView ///
         dataView.beginUpdate();
         dataView.setItems(data);
@@ -223,18 +255,8 @@
             percentCompleteThreshold: percentCompleteThreshold,
             searchString: searchString
         });
-        dataView.setFilter(myFilter);
+        dataView.setFilter(filter);
         dataView.endUpdate();
-
-        /// Set SlickGrid-Plugins ///
-
-        /// Set SlickGrid-Plugins-HeaderButton-ColumnCollapse ///
-        var headerButtonColumnCollapsePlugin = new Slick.Plugins.HeaderButtonColumnCollapse();
-
-        /// Register SlickGrid-Plugins ///
-
-        /// Register SlickGrid-Plugins-HeaderButtons ///
-        grid.registerPlugin(headerButtonColumnCollapsePlugin);
 
         /// Initialize SlickGrid-Grid ///
         grid.init();
