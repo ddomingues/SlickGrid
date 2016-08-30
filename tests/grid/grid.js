@@ -138,12 +138,12 @@
   test("setOptions 'frozenColumn' from frozen to unfrozen", function () {
     var currentWidth,
       width = $("#container").outerWidth(),
-      $paneHeaderL = $(".slick-pane.slick-pane-header.slick-pane-left");
-    $paneTopL = $(".slick-pane.slick-pane-top.slick-pane-left");
-      $viewportTopL = $(".slick-viewport.slick-viewport-top.slick-viewport-left");
-    $paneHeaderR = $(".slick-pane.slick-pane-header.slick-pane-right");
-    $paneTopR = $(".slick-pane.slick-pane-top.slick-pane-right");
-    $viewportTopR = $(".slick-viewport.slick-viewport-top.slick-viewport-right");
+      $paneHeaderL = $(".slick-pane.slick-pane-header.slick-pane-left"),
+      $paneTopL = $(".slick-pane.slick-pane-top.slick-pane-left"),
+      $viewportTopL = $(".slick-viewport.slick-viewport-top.slick-viewport-left"),
+      $paneHeaderR = $(".slick-pane.slick-pane-header.slick-pane-right"),
+      $paneTopR = $(".slick-pane.slick-pane-top.slick-pane-right"),
+      $viewportTopR = $(".slick-viewport.slick-viewport-top.slick-viewport-right");
 
     grid.setOptions({'frozenColumn': 1});
     grid.setOptions({'frozenColumn': -1});
