@@ -89,6 +89,16 @@
     var percentCompleteThreshold = 0;
     var searchString = "";
 
+    function implementEditorText(cols) {
+        for (var i in cols) {
+            $.extend(true, cols[i], {editor: Slick.Editors.Text});
+            if (cols[i].columns) {
+                implementEditorText(cols[i].columns);
+            }
+        }
+    }
+    implementEditorText(columns);
+
     /// Set DataView-Filter ///
     function filter(item, args) {
         if (item["percentComplete"] < args.percentCompleteThreshold) {
