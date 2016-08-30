@@ -77,19 +77,38 @@
     var _defaults = {
       buttonCssClass: "slick-header-button"
     };
+    var headerButton = {
+      header: {
+        buttons: [
+          {
+            cssClass: "icon-column-collapse",
+            command: "toggle-column",
+            tooltip: "Toggle column."
+          }
+        ]
+      }
+    };
 
+    function implementHeaderButtons(cols, headerButton) {
+      for (var i in cols) {
+        $.extend(true, cols[i], headerButton);
+        if (cols[i].columns) {
+          implementHeaderButtons(cols[i].columns, headerButton);
+        }
+      }
+    }
 
     function init(grid) {
+      implementHeaderButtons(columns, headerButton);
+      grid.setColumns(columns);
       options = $.extend(true, {}, _defaults, options);
       _grid = grid;
       _handler
         .subscribe(_grid.onHeaderCellRendered, handleHeaderCellRendered)
         .subscribe(_grid.onBeforeHeaderCellDestroy, handleBeforeHeaderCellDestroy);
-
       // Force the grid to re-render the header now that the events are hooked up.
       _grid.setColumns(_grid.getColumns());
     }
-
 
     function destroy() {
       _handler.unsubscribeAll();
@@ -97,8 +116,11 @@
 
     function handleHeaderCellRendered(e, args) {
       var column = args.column;
-
-      if (column.header && column.header.buttons) {
+      console.log(column);
+      if (column.header
+        && column.header.buttons
+        && !column.isDummy
+        && !$(args.node).hasClass('frozen')) {
         // Append buttons in reverse order since they are floated to the right.
         var i = column.header.buttons.length;
         while (i--) {

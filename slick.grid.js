@@ -852,10 +852,10 @@
           $header = $headers.children().eq(idx);
         }
 
-        if (columnDef.hiddenColumn)
-          $header.find(".slick-resizable-handle").remove();
-
         if ($header) {
+          if (columnDef.hiddenColumn) {
+            $header.find(".slick-resizable-handle").remove();
+          }
 
           if (idx !== null) {
             if (title !== undefined) {
@@ -1128,6 +1128,7 @@
             var col = [{
               id: "dummy#" + depth + "_" + i + "_" + count,
               name: "&nbsp;",
+              isDummy: true,
               columns: cols
             }];
             depth--;

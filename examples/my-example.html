@@ -84,36 +84,6 @@
         frozenColumn: 9
     };
 
-    /// Define Plugins-Objects ///
-
-    /// Define Plugins-Objects-HeaderButtons ///
-    var columnsWithHighlightingById = {};
-    var headerButton = {
-        header: {
-            buttons: [
-                {
-                    cssClass: "icon-column-collapse",
-                    command: "toggle-column",
-                    tooltip: "Toggle column."
-                }
-            ]
-        }
-    };
-
-    /// Define Plugins-Functions ///
-
-    /// Define Plugins-Functions-HeaderButtons ///
-    function implementHeaderButtons(cols, headerButton) {
-        for (var i in cols) {
-            $.extend(true, cols[i], headerButton);
-            if (cols[i].columns)
-                implementHeaderButtons(cols[i].columns, headerButton);
-        }
-    }
-
-    /// Extend Grid-Objects ///
-    implementHeaderButtons(columns, headerButton);
-
     var sortcol = "title";
     var sortdir = 1;
     var percentCompleteThreshold = 0;
@@ -256,9 +226,6 @@
         dataView.setFilter(myFilter);
         dataView.endUpdate();
 
-        /// Initialize SlickGrid-Grid ///
-        grid.init();
-
         /// Set SlickGrid-Plugins ///
 
         /// Set SlickGrid-Plugins-HeaderButton-ColumnCollapse ///
@@ -268,6 +235,9 @@
 
         /// Register SlickGrid-Plugins-HeaderButtons ///
         grid.registerPlugin(headerButtonColumnCollapsePlugin);
+
+        /// Initialize SlickGrid-Grid ///
+        grid.init();
     })
 </script>
 </body>
