@@ -87,6 +87,7 @@
   }
 
   function undo() {
+    alert("undo");
     var command = commandQueue.pop();
     if (command && Slick.GlobalEditorLock.cancelCurrentEdit()) {
       command.undo();

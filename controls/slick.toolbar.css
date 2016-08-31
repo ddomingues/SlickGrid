@@ -12,10 +12,18 @@
     padding: 6px;
 }
 
-.slick-toolbar .ui-icon-container {
+.slick-toolbar .slick-toolbar-icon-container {
     display: inline-block;
-    margin: 2px;
-    border-color: gray;
+    float: left;
+    height: 22px;
+    opacity: 0.8;
+}
+
+.slick-toolbar .slick-toolbar-icon-state-hover {
+    display: inline-block;
+    float: left;
+    height: 22px;
+    opacity: 1;
 }
 
 .slick-toolbar .slick-toolbar-nav {

@@ -7,139 +7,68 @@
     factory(jQuery);
   }
 }(function ($) {
-  function SlickGridToolbar(dataView, grid, $container) {
+  var prevCommandQueue = [];
+  var lateCommandQueue = [];
+
+  function queueAndExecuteCommand(item, column, editCommand) {
+    prevCommandQueue.push(editCommand);
+    editCommand.execute();
+  }
+
+  function undo() {
+    var command = prevCommandQueue.pop();
+    lateCommandQueue.push(command);
+    if (command && Slick.GlobalEditorLock.cancelCurrentEdit()) {
+      command.undo();
+      grid.gotoCell(command.row, command.cell, false);
+    }
+  }
+
+  function redo() {
+    var command = lateCommandQueue.pop();
+    prevCommandQueue.push(command);
+    if (command && Slick.GlobalEditorLock.cancelCurrentEdit()) {
+      command.execute();
+      grid.gotoCell(command.row, command.cell, false);
+    }
+  }
+
+  function SlickGridToolbar(grid, $container) {
     var $status;
 
     function init() {
-      /*
-       dataView.onPagingInfoChanged.subscribe(function (e, pagingInfo) {
-       updatePager(pagingInfo);
-       });
-       */
-
+      grid.setOptions({editCommandHandler: queueAndExecuteCommand});
       constructToolbarUI();
-      //updatePager(dataView.getPagingInfo());
-    }
-
-    function getNavState() {
-      var cannotLeaveEditMode = !Slick.GlobalEditorLock.commitCurrentEdit();
-      var pagingInfo = dataView.getPagingInfo();
-      var lastPage = pagingInfo.totalPages - 1;
-
-      return {
-        canGotoFirst: !cannotLeaveEditMode && pagingInfo.pageSize != 0 && pagingInfo.pageNum > 0,
-        canGotoLast: !cannotLeaveEditMode && pagingInfo.pageSize != 0 && pagingInfo.pageNum != lastPage,
-        canGotoPrev: !cannotLeaveEditMode && pagingInfo.pageSize != 0 && pagingInfo.pageNum > 0,
-        canGotoNext: !cannotLeaveEditMode && pagingInfo.pageSize != 0 && pagingInfo.pageNum < lastPage,
-        pagingInfo: pagingInfo
-      }
-    }
-
-    function setPageSize(n) {
-      dataView.setRefreshHints({
-        isFilterUnchanged: true
-      });
-      dataView.setPagingOptions({pageSize: n});
-    }
-
-    function gotoFirst() {
-      if (getNavState().canGotoFirst) {
-        dataView.setPagingOptions({pageNum: 0});
-      }
-    }
-
-    function gotoLast() {
-      var state = getNavState();
-      if (state.canGotoLast) {
-        dataView.setPagingOptions({pageNum: state.pagingInfo.totalPages - 1});
-      }
-    }
-
-    function gotoPrev() {
-      var state = getNavState();
-      if (state.canGotoPrev) {
-        dataView.setPagingOptions({pageNum: state.pagingInfo.pageNum - 1});
-      }
-    }
-
-    function gotoNext() {
-      var state = getNavState();
-      if (state.canGotoNext) {
-        dataView.setPagingOptions({pageNum: state.pagingInfo.pageNum + 1});
-      }
     }
 
     function constructToolbarUI() {
       $container.empty();
 
       var $nav = $("<span class='slick-toolbar-nav' />").appendTo($container);
-      var $settings = $("<span class='slick-toolbar-settings' />").appendTo($container);
       $status = $("<span class='slick-toolbar-status' />").appendTo($container);
 
-      $settings
-        .append("<span class='slick-toolbar-settings-expanded' style='display:none'>Show: <a data=0>All</a><a data='-1'>Auto</a><a data=25>25</a><a data=50>50</a><a data=100>100</a></span>");
-
-      $settings.find("a[data]").click(function (e) {
-        var pagesize = $(e.target).attr("data");
-        if (pagesize != undefined) {
-          if (pagesize == -1) {
-            var vp = grid.getViewport();
-            setPageSize(vp.bottom - vp.top);
-          } else {
-            setPageSize(parseInt(pagesize));
-          }
-        }
-      });
-
-      $("<button title='Undo' onclick='undo();' style='height: 22px; float: left;'><img src='../images/arrow_undo.png' height='16'></button>")
+      $("<button title='Undo' onclick='ToolbarUndo();' class='slick-toolbar-icon-container'><img src='../images/arrow_undo.png' height='16' style='padding-bottom: 2px;'></button>")
         .appendTo($nav);
 
-      $("<button title='Redo' onclick='redo();' style='height: 22px; float: left;'><img src='../images/arrow_redo.png' height='16'></button>")
+      $("<button title='Redo' onclick='ToolbarRedo();' class='slick-toolbar-icon-container'><img src='../images/arrow_redo.png' height='16' style='padding-bottom: 2px;'></button>")
         .appendTo($nav);
 
-      $container.find(".ui-icon-container")
+      $container.find(".slick-toolbar-icon-container")
         .hover(function () {
-          $(this).toggleClass("ui-state-hover");
+          $(this).toggleClass("slick-toolbar-icon-state-hover");
         });
 
       $container.children().wrapAll("<div class='slick-toolbar' />");
     }
 
-
-    function updatePager(pagingInfo) {
-      var state = getNavState();
-
-      $container.find(".slick-toolbar-nav span").removeClass("ui-state-disabled");
-      if (!state.canGotoFirst) {
-        $container.find(".ui-icon-seek-first").addClass("ui-state-disabled");
-      }
-      if (!state.canGotoLast) {
-        $container.find(".ui-icon-seek-end").addClass("ui-state-disabled");
-      }
-      if (!state.canGotoNext) {
-        $container.find(".ui-icon-seek-next").addClass("ui-state-disabled");
-      }
-      if (!state.canGotoPrev) {
-        $container.find(".ui-icon-seek-prev").addClass("ui-state-disabled");
-      }
-
-      if (pagingInfo.pageSize == 0) {
-        var totalRowsCount = dataView.getItems().length;
-        var visibleRowsCount = pagingInfo.totalRows;
-        if (visibleRowsCount < totalRowsCount) {
-          $status.text("Showing " + visibleRowsCount + " of " + totalRowsCount + " rows");
-        } else {
-          $status.text("Showing all " + totalRowsCount + " rows");
-        }
-        $status.text("Showing all " + pagingInfo.totalRows + " rows");
-      } else {
-        $status.text("Showing page " + (pagingInfo.pageNum + 1) + " of " + pagingInfo.totalPages);
-      }
-    }
-
     init();
   }
 
-  // Slick.Controls.Pager
+  // Slick.Controls.Toolbar
   $.extend(true, window, {Slick: {Controls: {Toolbar: SlickGridToolbar}}});
+
+  $.extend(this, {
+    "ToolbarUndo": undo,
+    "ToolbarRedo": redo
+  });
 }));
