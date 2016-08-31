@@ -280,6 +280,7 @@
         validateAndEnforceOptions();
         columnDefaults.width = options.defaultColumnWidth;
         columns = fillTreeColumns(columns);
+        console.log(columns);
         treeColumns = new Slick.TreeColumns(columns);
         columns = treeColumns.extractColumns();
 
@@ -985,7 +986,7 @@
 
             var headerHTML_divClass = "ui-state-default slick-group-header-column"
               + (m.headerCssClass ? (" " + m.headerCssClass) : "")
-              + (hasFrozenColumns() && i <= options.frozenColumn ? " frozen" : "");
+              + (isFrozenColumn ? " frozen" : "");
             var headerHTML_divId = "" + uid + m.id;
             var headerHTML_divTitle = m.toolTip || "";
             var headerHTML_spanClass = "slick-column-name";
@@ -1142,7 +1143,7 @@
               id: "dummy#" + depth + "_" + i + "_" + count,
               name: "&nbsp;",
               isDummy: true,
-              columns: cols
+              columns: fillColumnsTree(depth, cols, count)
             }];
             depth--;
             return col;
@@ -1981,7 +1982,6 @@
           var groupHeadersArr = [];
           groupHeadersArr.push($groupHeadersL[depth]);
           groupHeadersArr.push($groupHeadersR[depth]);
-
           for (var i in groupHeadersArr) {
             var $groupHeader = groupHeadersArr[i],
               currentColumnIndex = 0;

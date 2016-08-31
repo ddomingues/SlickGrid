@@ -102,6 +102,26 @@
     }
     implementEditorText(columns);
 
+    var extraColumnsLength = 1;
+    var extraColumns =
+    {
+        id: "ExtraColumns",
+        name: "ExtraColumns",
+        columns: []
+    };
+    for (var x = 0; x < extraColumnsLength; x++) {
+        var xCol = {
+            id: "ExtraColumn" + x,
+            name: "ExtraColumn" + x,
+            field: "ExtraColumn" + x,
+            translate_key: "ExtraColumn" + x,
+            cssClass: " disabled",
+            headerCssClass: ""
+        };
+        extraColumns.columns.push(xCol);
+    }
+    columns.push(extraColumns);
+
     /// Set DataView-Filter ///
     function filter(item, args) {
         if (item["percentComplete"] < args.percentCompleteThreshold) {
@@ -152,13 +172,29 @@
             d["indent"] = indent;
             d["parent"] = parent;
             d["Filiale"] = "Filiale_" + i;
-            d["QM08#Employees_Calc"] = i;
-            d["title"] = "Task " + i;
-            d["duration"] = 5;
-            d["Scope"] = Math.round(Math.random() * 100);
-            d["start"] = "01/01/2009";
-            d["finish"] = "01/05/2009";
-            d["effortDriven"] = (i % 5 == 0);
+            d["Optionen"] = "Options";
+            d["Business_Relation_Number"] = i;
+            d["Customer_Name"] = "name " + Math.round(Math.random() * 10);
+            d["Location"] = "Location";
+            d["ZipCode"] = Math.round(Math.random() * 100000);
+            d["Country"] = "Country";
+            d["Info"] = "Infotext";
+            d["Scope"] = "test";
+            d["Employees_All"] = Math.round(Math.random() * 1000);
+            d["Employees_Base"] = d["Employees_All"] - 66;
+            d["QM08#Active"] = (i % 5 == 0);
+            d["QM08#Employees_Calc"] = Math.round(Math.random() * 10000);
+            d["QM08#Accreditation_Agency"] = "Agency";
+            d["QM08#Cycle"] = "Cycle";
+            d["QM08#Class"] = "Class";
+            d["QM08#Year1"] = "01/01/2009";
+            d["QM08#Year2"] = "01/01/2009";
+            d["QM08#Year3"] = "01/01/2009";
+            d["QM08#Year4"] = "01/01/2009";
+
+            for (var x = 0; x < extraColumnsLength; x++) {
+                d["ExtraColumn" + x] = "TestCell";
+            }
         }
 
         /// Set SlickGrid-DataView ///
