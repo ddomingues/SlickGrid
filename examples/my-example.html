@@ -92,19 +92,9 @@
     var percentCompleteThreshold = 0;
     var searchString = "";
 
-    function implementEditorText(cols) {
-        for (var i in cols) {
-            $.extend(true, cols[i], {editor: Slick.Editors.Text});
-            if (cols[i].columns) {
-                implementEditorText(cols[i].columns);
-            }
-        }
-    }
-    implementEditorText(columns);
-
-    var extraColumnsLength = 1;
-    var extraColumns =
-    {
+    var rowLength = 50000;
+    var extraColumnsLength = 400;
+    var extraColumns = {
         id: "ExtraColumns",
         name: "ExtraColumns",
         columns: []
@@ -121,6 +111,16 @@
         extraColumns.columns.push(xCol);
     }
     columns.push(extraColumns);
+
+    function implementEditorText(cols) {
+        for (var i in cols) {
+            $.extend(true, cols[i], {editor: Slick.Editors.Text});
+            if (cols[i].columns) {
+                implementEditorText(cols[i].columns);
+            }
+        }
+    }
+    implementEditorText(columns);
 
     /// Set DataView-Filter ///
     function filter(item, args) {
@@ -150,7 +150,7 @@
         /// Set SlickGrid-Data ///
         var indent = 0;
         var parents = [];
-        for (var i = 0; i < 50000; i++) {
+        for (var i = 0; i < rowLength; i++) {
             var d = (data[i] = {});
             var parent;
 

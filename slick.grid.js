@@ -280,7 +280,6 @@
         validateAndEnforceOptions();
         columnDefaults.width = options.defaultColumnWidth;
         columns = fillTreeColumns(columns);
-        console.log(columns);
         treeColumns = new Slick.TreeColumns(columns);
         columns = treeColumns.extractColumns();
 
@@ -2120,6 +2119,7 @@
       }
 
       function setColumns(columnDefinitions) {
+
         var _treeColumns = new Slick.TreeColumns(columnDefinitions);
         if (_treeColumns.hasDepth()) {
           treeColumns = _treeColumns;
