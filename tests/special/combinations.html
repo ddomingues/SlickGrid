@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SlickGrid - Combinations Tests</title>
+    <link rel="stylesheet" href="../../lib/qunit.css" type="text/css"/>
+    <link rel="stylesheet" href="../../slick.grid.css" type="text/css"/>
+    <link rel="stylesheet" href="../../slick-default-theme.css" type="text/css"/>
+    <link rel="stylesheet" href="../style.css" type="text/css"/>
+</head>
+<body>
+<h1 id="qunit-header">SlickGrid Test Suite - Combinations</h1>
+
+<h2 id="qunit-banner"></h2>
+
+<div id="qunit-testrunner-toolbar"></div>
+<h2 id="qunit-userAgent"></h2>
+
+<h2>Model</h2>
+<table>
+    <thead>
+    <tr>
+        <th class="rowsheading">Rows</th>
+        <th class="columnsheading" colspan="3">Columns</th>
+    </tr>
+    <tr>
+        <th class="rowsheading">Amount</th>
+        <th class="columnsheading">Amount</th>
+        <th class="columnsheading">Groups</th>
+        <th class="columnsheading">Frozen</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td><input class="modelconfig number" type="text"/></td>
+        <td><input class="modelconfig number" type="text"/></td>
+        <td><input class="modelconfig number" type="text"/></td>
+        <td><input class="modelconfig number" type="text"/></td>
+    </tr>
+    </tbody>
+</table>
+<h2>Controls</h2>
+<ul>
+    <li><input id="pager" type="checkbox"/><label for="pager">Pager</label></li>
+    <li><input id="toolbar" type="checkbox"/><label for="toolbar">Toolbar</label></li>
+</ul>
+<h2>Plugins</h2>
+<ul style="text-decoration: none;">
+    <li><input id="autotooltips" type="checkbox"/><label for="autotooltips">AutoTooltips</label></li>
+    <li><input id="rowcollapse" type="checkbox"/><label for="rowcollapse">RowCollapse</label></li>
+    <li><input id="columncollapse" type="checkbox"/><label for="columncollapse">ColumnCollapse</label></li>
+</ul>
+<h2>
+    <button>Start Tests</button>
+</h2>
+
+<ol id="qunit-tests"></ol>
+
+<br/><br/><br/>
+
+<div id="container" style="width:600px; height:400px;"></div>
+
+<script type="text/javascript" src="../../lib/qunit.js"></script>
+<script type="text/javascript" src="../../lib/jquery-1.7.min.js"></script>
+<script type="text/javascript" src="../../lib/jquery-ui-1.8.24.custom.min.js"></script>
+<script type="text/javascript" src="../../lib/jquery.event.drag-2.2.js"></script>
+<script type="text/javascript" src="../../lib/jquery.simulate.js"></script>
+<script type="text/javascript" src="../../lib/jquery.simulate.js"></script>
+<script src="../../lib/handlebars-v2.0.0.js"></script>
+<script type="text/javascript" src="../../lib/qunit.js"></script>
+<script type="text/javascript">
+    jQuery.noConflict();
+</script>
+<script type="text/javascript" src="../../slick.core.js"></script>
+<script type="text/javascript" src="../../slick.grid.js"></script>
+<script type="text/javascript" src="../../plugins/slick.autotooltips.js"></script>
+<script type="text/javascript" src="autotooltips.js"></script>
+</body>
+</html>
