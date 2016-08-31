@@ -77,6 +77,13 @@
 <script src="../slick.dataview.js"></script>
 
 <script>
+  $(document).mousedown(
+          function (e) {
+            var mousePos = {x: e.pageX, y: e.pageY};
+            console.log(mousePos);
+          }
+  );
+
   function requiredFieldValidator(value) {
     if (value == null || value == undefined || !value.length) {
       return {valid: false, msg: "This is a required field"};

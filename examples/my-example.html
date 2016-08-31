@@ -1,0 +1,314 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <title>My SlickGrid example</title>
+
+    <!-- Library Stylesheets -->
+    <link rel="stylesheet" href="../css/smoothness/jquery-ui-1.8.24.custom.css" type="text/css"/>
+
+    <!-- Example Stylesheet -->
+    <link rel="stylesheet" href="examples.css" type="text/css"/>
+
+    <!-- SlickGrid-Base Stylesheets -->
+    <link rel="stylesheet" href="../slick.grid.css" type="text/css"/>
+
+    <!-- SlickGrid-Controls Stylesheets -->
+    <link rel="stylesheet" href="../controls/slick.pager.css" type="text/css"/>
+    <link rel="stylesheet" href="../controls/slick.toolbar.css" type="text/css"/>
+
+    <!-- SlickGrid-Plugins Stylesheets -->
+    <link rel="stylesheet" href="../plugins/slick.rowcollapse.css" type="text/css"/>
+    <link rel="stylesheet" href="../plugins/slick.headerbutton.columncollapse.css" type="text/css"/>
+
+    <!-- SlickGrid-FrozenColumns Style -->
+    <style>
+        .slick-cell.frozen:last-child, .slick-header-column.frozen:last-child {
+            border-right: 1.5px dotted darkblue !important;
+        }
+    </style>
+</head>
+<body>
+<div style="position:relative">
+    <div style="width:1650px;">
+        <div class="grid-header" style="width:100%">
+            <label>SlickGrid</label>
+        </div>
+        <div id="toolbar" style="width:100%"></div>
+        <div id="myGrid" style="width:100%;height:500px;"></div>
+        <div id="pager" style="width:100%;height:20px;"></div>
+    </div>
+</div>
+
+<div id="inlineFilterPanel" style="display:none;background:#dddddd;padding:3px;color:black;">
+    Show tasks with title including <input type="text" id="txtSearch2">
+    and % at least &nbsp;
+    <div style="width:100px;display:inline-block;" id="pcSlider2"></div>
+</div>
+
+<!-- Libraries -->
+<script src="../lib/firebugx.js"></script>
+<script src="../lib/jquery-1.7.min.js"></script>
+<script src="../lib/jquery-ui-1.8.24.custom.min.js"></script>
+<script src="../lib/jquery.event.drag-2.2.js"></script>
+<script src="../lib/jquery.mousewheel.js"></script>
+
+<!-- SlickGrid-Base -->
+<script src="../slick.core.js"></script>
+<script src="../slick.formatters.js"></script>
+<script src="../slick.editors.js"></script>
+<script src="../slick.grid.js"></script>
+<script src="../slick.dataview.js"></script>
+
+<!-- SlickGrid-Conrols -->
+<script src="../controls/slick.pager.js"></script>
+<script src="../controls/slick.toolbar.js"></script>
+
+<!-- SlickGrid-Plugins -->
+<script src="../plugins/slick.rowcollapse.js"></script>
+<script src="../plugins/slick.headerbutton.columncollapse.js"></script>
+
+<script>
+    /// Define Grid-Objects ///
+    var dataView;
+    var grid;
+    var data = [];
+    var columns = JSON.parse($.ajax({type: "GET", url: "../data/col2.json", async: false}).responseText);
+    var options = {
+        editable: true,
+        enableAddRow: true,
+        enableCellNavigation: true,
+        asyncEditorLoading: true,
+        forceFitColumns: false,
+        autoEdit: false,
+        showFooterRow: true,
+        explicitInitialization: true,
+        syncColumnCellResize: true,
+        frozenColumn: 10
+    };
+
+    var sortcol = "title";
+    var sortdir = 1;
+    var percentCompleteThreshold = 0;
+    var searchString = "";
+
+    var rowLength = 50000;
+    var extraColumnsLength = 400;
+    var extraColumns = {
+        id: "ExtraColumns",
+        name: "ExtraColumns",
+        columns: []
+    };
+    for (var x = 0; x < extraColumnsLength; x++) {
+        var xCol = {
+            id: "ExtraColumn" + x,
+            name: "ExtraColumn" + x,
+            field: "ExtraColumn" + x,
+            translate_key: "ExtraColumn" + x,
+            cssClass: " disabled",
+            headerCssClass: ""
+        };
+        extraColumns.columns.push(xCol);
+    }
+    columns.push(extraColumns);
+
+    function implementEditorText(cols) {
+        for (var i in cols) {
+            $.extend(true, cols[i], {editor: Slick.Editors.Text});
+            if (cols[i].columns) {
+                implementEditorText(cols[i].columns);
+            }
+        }
+    }
+    implementEditorText(columns);
+
+    /// Set DataView-Filter ///
+    function filter(item, args) {
+        if (item["percentComplete"] < args.percentCompleteThreshold) {
+            return false;
+        }
+
+        if (args.searchString != "" && item["title"].indexOf(args.searchString) == -1) {
+            return false;
+        }
+
+        return true;
+    }
+
+    $(".grid-header .ui-icon")
+            .addClass("ui-state-default ui-corner-all")
+            .mouseover(function (e) {
+                $(e.target).addClass("ui-state-hover")
+            })
+            .mouseout(function (e) {
+                $(e.target).removeClass("ui-state-hover")
+            });
+
+    /// Set SlickGrid ///
+    $(function () {
+
+        /// Set SlickGrid-Data ///
+        var indent = 0;
+        var parents = [];
+        for (var i = 0; i < rowLength; i++) {
+            var d = (data[i] = {});
+            var parent;
+
+            if (Math.random() > 0.8 && i > 0) {
+                indent++;
+                parents.push(i - 1);
+            } else if (Math.random() < 0.3 && indent > 0) {
+                indent--;
+                parents.pop();
+            }
+
+            if (parents.length > 0) {
+                parent = parents[parents.length - 1];
+            } else {
+                parent = null;
+            }
+
+            d["id"] = "id_" + i;
+            d["indent"] = indent;
+            d["parent"] = parent;
+            d["Filiale"] = "Filiale_" + i;
+            d["Optionen"] = "Options";
+            d["Business_Relation_Number"] = i;
+            d["Customer_Name"] = "name " + Math.round(Math.random() * 10);
+            d["Location"] = "Location";
+            d["ZipCode"] = Math.round(Math.random() * 100000);
+            d["Country"] = "Country";
+            d["Info"] = "Infotext";
+            d["Scope"] = "test";
+            d["Employees_All"] = Math.round(Math.random() * 1000);
+            d["Employees_Base"] = d["Employees_All"] - 66;
+            d["QM08#Active"] = (i % 5 == 0);
+            d["QM08#Employees_Calc"] = Math.round(Math.random() * 10000);
+            d["QM08#Accreditation_Agency"] = "Agency";
+            d["QM08#Cycle"] = "Cycle";
+            d["QM08#Class"] = "Class";
+            d["QM08#Year1"] = "01/01/2009";
+            d["QM08#Year2"] = "01/01/2009";
+            d["QM08#Year3"] = "01/01/2009";
+            d["QM08#Year4"] = "01/01/2009";
+
+            for (var x = 0; x < extraColumnsLength; x++) {
+                d["ExtraColumn" + x] = "TestCell";
+            }
+        }
+
+        /// Set SlickGrid-DataView ///
+        dataView = new Slick.Data.DataView({inlineFilters: true});
+
+        /// Set SlickGrid-Grid ///
+        grid = new Slick.Grid("#myGrid", dataView, columns, options);
+
+        /// Set SlickGrid-Grid-Events ///
+        grid.onCellChange.subscribe(function (e, args) {
+            dataView.updateItem(args.item.id, args.item);
+        });
+        grid.onAddNewRow.subscribe(function (e, args) {
+            var item = {
+                "num": data.length,
+                "id": "new_" + (Math.round(Math.random() * 10000)),
+                "title": "New task",
+                "duration": "1 day",
+                "percentComplete": 0,
+                "start": "01/01/2009",
+                "finish": "01/01/2009",
+                "effortDriven": false
+            };
+            $.extend(item, args.item);
+            dataView.addItem(item);
+        });
+        grid.onKeyDown.subscribe(function (e) {
+            // select all rows on ctrl-a
+            if (e.which != 65 || !e.ctrlKey) {
+                return false;
+            }
+
+            var rows = [];
+            for (var i = 0; i < dataView.getLength(); i++) {
+                rows.push(i);
+            }
+
+            grid.setSelectedRows(rows);
+            e.preventDefault();
+        });
+        grid.onSort.subscribe(function (e, args) {
+            sortdir = args.sortAsc ? 1 : -1;
+            sortcol = args.sortCol.field;
+
+            if ($.browser.msie && $.browser.version <= 8) {
+                // using temporary Object.prototype.toString override
+                // more limited and does lexicographic sort only by default, but can be much faster
+
+                var percentCompleteValueFn = function () {
+                    var val = this["percentComplete"];
+                    if (val < 10) {
+                        return "00" + val;
+                    } else if (val < 100) {
+                        return "0" + val;
+                    } else {
+                        return val;
+                    }
+                };
+
+                // use numeric sort of % and lexicographic for everything else
+                dataView.fastSort((sortcol == "percentComplete") ? percentCompleteValueFn : sortcol, args.sortAsc);
+            } else {
+                // using native sort with comparer
+                // preferred method but can be very slow in IE with huge datasets
+                dataView.sort(comparer, args.sortAsc);
+            }
+        });
+
+        /// Set SlickGrid-DataView-Events ///
+        dataView.onRowCountChanged.subscribe(function (e, args) {
+            grid.updateRowCount();
+            grid.render();
+        });
+        dataView.onRowsChanged.subscribe(function (e, args) {
+            grid.invalidateRows(args.rows);
+            grid.render();
+        });
+        dataView.onPagingInfoChanged.subscribe(function (e, pagingInfo) {
+            var isLastPage = pagingInfo.pageNum == pagingInfo.totalPages - 1;
+            var enableAddRow = isLastPage || pagingInfo.pageSize == 0;
+            var options = grid.getOptions();
+
+            if (options.enableAddRow != enableAddRow) {
+                grid.setOptions({enableAddRow: enableAddRow});
+            }
+        });
+
+        /// Set SlickGrid-Controls ///
+        var pager = new Slick.Controls.Pager(dataView, grid, $("#pager"));
+        var toolbar = new Slick.Controls.Toolbar(grid, $("#toolbar"));
+
+        /// Set SlickGrid-Plugins ///
+
+        var rowCollapsePlugin = new Slick.Plugins.RowCollapse({column: "Filiale"});
+        var headerButtonColumnCollapsePlugin = new Slick.Plugins.HeaderButtonColumnCollapse();
+
+        /// Register SlickGrid-Plugins ///
+
+        grid.registerPlugin(rowCollapsePlugin);
+        grid.registerPlugin(headerButtonColumnCollapsePlugin);
+
+        /// Initialize SlickGrid-DataView ///
+        dataView.beginUpdate();
+        dataView.setItems(data);
+        dataView.setFilterArgs({
+            percentCompleteThreshold: percentCompleteThreshold,
+            searchString: searchString
+        });
+        dataView.setFilter(filter);
+        dataView.endUpdate();
+
+        /// Initialize SlickGrid-Grid ///
+        grid.init();
+    })
+</script>
+</body>
+</html>

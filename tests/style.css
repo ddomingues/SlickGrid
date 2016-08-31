@@ -1,0 +1,37 @@
+ul {
+    font-family: 'trebuchet ms', verdana, arial;
+}
+
+h2, ul {
+    font-size: 10pt;
+}
+
+ul li {
+    list-style: none;
+}
+
+h2 {
+    background-color: #EEEEEE;
+    color: black;
+    font-size: small;
+    font-weight: normal;
+    margin: 0;
+    padding: 10px;
+}
+
+table {
+    font-size: 10pt;
+    font-family: 'trebuchet ms', verdana, arial;
+}
+
+.columnsheading {
+    background-color: skyblue;
+}
+
+.rowsheading {
+    background-color: cornflowerblue;
+}
+
+.modelconfig.number {
+    width: 100px;
+}

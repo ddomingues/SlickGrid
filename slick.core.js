@@ -490,14 +490,79 @@
       mapToId(treeColumns);
     }
 
-    function mapToId(columns) {
-      columns
-        .forEach(function (column) {
-          columnsById[column.id] = column;
+    function createEmptyHiddenColumns(depth) {
+      depth--;
+      var columnsArr = [];
+      var column = {};
+      if (depth > 1) {
+        column = {
+          id: "emptyhidden_" + depth + Math.random(),
+          name: "&nbsp;",
+          hiddenColumn: {},
+          columns: createEmptyHiddenColumns(depth)
+        };
+      } else {
+        column = {
+          id: "emptyhidden_" + depth + Math.random(),
+          name: "&nbsp;",
+          hiddenColumn: {}
+        };
+      }
+      columnsArr.push(column);
+      return columnsArr;
+    }
 
-          if (column.columns)
-            mapToId(column.columns);
-        });
+    function createHiddenColumn(id) {
+      var column = columnsById[id];
+      var _treeColumns = new Slick.TreeColumns(column);
+      var columnDepth = _treeColumns.getDepth();
+      if (column.hiddenColumn) {
+        column.hiddenColumn.header = column.header;
+        column = column.hiddenColumn;
+      } else {
+        if (columnDepth > 1) {
+          column = {
+            id: column.id,
+            name: "&nbsp;",
+            header: column.header,
+            hiddenColumn: column,
+            columns: createEmptyHiddenColumns(columnDepth)
+          };
+        } else {
+          column = {
+            id: column.id,
+            name: "&nbsp;",
+            header: column.header,
+            hiddenColumn: column
+          };
+        }
+      }
+      return column;
+    }
+
+    function toggleColumn(node, id) {
+      for (var i in node) {
+        if (node[i].id) {
+          if (node[i].id == id) {
+            node[i] = createHiddenColumn(id);
+            break;
+          } else {
+            if (node[i].columns) {
+              node[i].columns = toggleColumn(node[i].columns, id);
+            }
+          }
+        }
+      }
+      return node;
+    }
+
+    function mapToId(columns) {
+      for (var i in columns) {
+        columnsById[columns[i].id] = columns[i];
+
+        if (columns[i].columns)
+          mapToId(columns[i].columns)
+      }
     }
 
     function filter(node, condition) {
@@ -549,9 +614,9 @@
       if (depth == current) {
 
         if (node.length)
-          node.forEach(function(n) {
+          node.forEach(function (n) {
             if (n.columns)
-              n.extractColumns = function() {
+              n.extractColumns = function () {
                 return extractColumns(n);
               };
           });
@@ -608,7 +673,7 @@
     };
 
     this.extractColumns = function () {
-      return this.hasDepth()? extractColumns(treeColumns): treeColumns;
+      return this.hasDepth() ? extractColumns(treeColumns) : treeColumns;
     };
 
     this.getDepth = function () {
@@ -617,6 +682,10 @@
 
     this.getColumnsInDepth = function (depth) {
       return getColumnsInDepth(treeColumns, depth);
+    };
+
+    this.toggleColumn = function (columnId) {
+      return toggleColumn(cloneTreeColumns(), columnId);
     };
 
     this.getColumnsInGroup = function (groups) {
@@ -648,6 +717,7 @@
     }
   }
 
-}));
+}))
+;
 
 
