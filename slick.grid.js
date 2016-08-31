@@ -982,13 +982,21 @@
             if (hasFrozenColumns() && index == 0 && (columnsLength - 1) === options.frozenColumn)
               frozenColumnsValid = true;
 
-            var header = $("<div class='ui-state-default slick-group-header-column' />")
-              .html("<span class='slick-column-name'>" + m.name + "</span>")
-              .attr("id", "" + uid + m.id)
-              .attr("title", m.toolTip || "")
+
+            var headerHTML_divClass = "ui-state-default slick-group-header-column"
+              + (m.headerCssClass ? (" " + m.headerCssClass) : "")
+              + (hasFrozenColumns() && i <= options.frozenColumn ? " frozen" : "");
+            var headerHTML_divId = "" + uid + m.id;
+            var headerHTML_divTitle = m.toolTip || "";
+            var headerHTML_spanClass = "slick-column-name";
+            var headerHTML = '<div class="' + headerHTML_divClass
+              + '" id="' + headerHTML_divId
+              + '" title="' + headerHTML_divTitle + '" >'
+              + '<span class="' + headerHTML_spanClass + '" >' + m.name + '</span>'
+              + '</div>';
+
+            var header = $(headerHTML)
               .data("column", m)
-              .addClass(m.headerCssClass || "")
-              .addClass(hasFrozenColumns() && isFrozenColumn ? 'frozen' : '')
               .appendTo(hasFrozenColumns() && !isFrozenColumn ? $groupHeadersR[index] : $groupHeadersL[index]);
 
             trigger(self.onHeaderCellRendered, {
@@ -1018,24 +1026,29 @@
         }
 
         function createHeaderNode(column) {
-          var header = $("<div class='ui-state-default slick-header-column' />")
-            .html("<span class='slick-column-name'>" + column.name + "</span>")
-            .width(column.hiddenColumn ? hiddenColumnWidth - headerColumnWidthDiff : column.width - headerColumnWidthDiff)
-            .attr("id", "" + uid + column.id)
-            .attr("title", column.toolTip || "")
-            .data("column", column)
-            .addClass(m.headerCssClass || "")
-            .addClass(hasFrozenColumns() && i <= options.frozenColumn ? 'frozen' : '');
+
+          var headerHTML_divClass = "ui-state-default slick-header-column"
+            + (m.headerCssClass ? (" " + m.headerCssClass) : "")
+            + (hasFrozenColumns() && i <= options.frozenColumn ? " frozen" : "")
+            + (m.sortable ? " slick-header-sortable" : "");
+          var headerHTML_divId = "" + uid + column.id;
+          var headerHTML_divTitle = column.toolTip || "";
+          var headerHTML_divStyle = "width: " + (column.hiddenColumn ? hiddenColumnWidth - headerColumnWidthDiff : column.width - headerColumnWidthDiff) + "px;";
+          var headerHTML_spanClass = "slick-column-name";
+          var headerHTML = '<div class="' + headerHTML_divClass
+            + '" id="' + headerHTML_divId
+            + '" title="' + headerHTML_divTitle
+            + '" style="' + headerHTML_divStyle + '" >'
+            + '<span class="' + headerHTML_spanClass + '" >' + column.name + '</span>'
+            + (m.sortable ? '<span class="slick-sort-indicator" />' : "")
+            + '</div>';
+
+          var header = $(headerHTML).data("column", column);
 
           if (options.enableColumnReorder || m.sortable) {
             header
               .on('mouseenter', onMouseEnter)
               .on('mouseleave', onMouseLeave);
-          }
-
-          if (m.sortable) {
-            header.addClass("slick-header-sortable");
-            header.append("<span class='slick-sort-indicator' />");
           }
 
           trigger(self.onHeaderCellRendered, {
@@ -1963,33 +1976,28 @@
         if (!treeColumns.hasDepth())
           return;
 
-        var depth = treeColumns.getDepth();
-
+        var depth = treeColumns.getDepth() - 1;
         while (depth--) {
-          $().add($groupHeadersL[depth]).add($groupHeadersR[depth]).each(function (i) {
-              var $groupHeader = $(this),
-                currentColumnIndex = 0;
-              $groupHeader.width(i == 0 ? getHeadersWidthL() : getHeadersWidthR());
+          var groupHeadersArr = [];
+          groupHeadersArr.push($groupHeadersL[depth]);
+          groupHeadersArr.push($groupHeadersR[depth]);
 
-              $groupHeader.children().each(function () {
-                var $groupHeaderColumn = $(this);
+          for (var i in groupHeadersArr) {
+            var $groupHeader = groupHeadersArr[i],
+              currentColumnIndex = 0;
 
-                var m = $(this).data('column');
+            $groupHeader.width(i == 0 ? getHeadersWidthL() : getHeadersWidthR());
 
-
-                m.width = 0;
-
-                m.columns.forEach(function (c) {
-                  var $headerColumn = $groupHeader.next().children(':eq(' + (currentColumnIndex++) + ')');
-                  m.width += $headerColumn.outerWidth();
-                });
-
-                $groupHeaderColumn.width(m.width - headerColumnWidthDiff);
-
-              });
-
+            for (var i = 0, headers = $groupHeader.children(), ii = headers.length; i < ii; i++) {
+              var h = $(headers[i]);
+              var m = h.data('column');
+              m.width = 0;
+              for (var c in m.columns) {
+                m.width += $groupHeader.next().children(':eq(' + (currentColumnIndex++) + ')').outerWidth();
+              }
+              h.width(m.width - headerColumnWidthDiff);
             }
-          )
+          }
         }
       }
 

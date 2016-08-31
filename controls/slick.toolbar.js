@@ -17,18 +17,18 @@
 
   function undo() {
     var command = prevCommandQueue.pop();
-    lateCommandQueue.push(command);
     if (command && Slick.GlobalEditorLock.cancelCurrentEdit()) {
       command.undo();
+      lateCommandQueue.push(command);
       grid.gotoCell(command.row, command.cell, false);
     }
   }
 
   function redo() {
     var command = lateCommandQueue.pop();
-    prevCommandQueue.push(command);
     if (command && Slick.GlobalEditorLock.cancelCurrentEdit()) {
       command.execute();
+      prevCommandQueue.push(command);
       grid.gotoCell(command.row, command.cell, false);
     }
   }
