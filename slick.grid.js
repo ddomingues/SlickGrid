@@ -729,8 +729,8 @@
           $footerRowScrollerL.width(canvasWidthL);
           $footerRowScrollerR.width(viewportW - canvasWidthL);
 
-          $footerRowL.width(canvasWidthL);
-          $footerRowR.width(canvasWidthR);
+          $footerRowL.width(headersWidthL);
+          $footerRowR.width(headersWidthR);
 
           $viewportTopL.width(canvasWidthL);
           $viewportTopR.width(viewportW - canvasWidthL);
@@ -756,7 +756,7 @@
 
           $footerRowScrollerL.width('100%');
 
-          $footerRowL.width(canvasWidth);
+          $footerRowL.width(headersWidthL);
 
           $viewportTopL.width('100%');
 
@@ -939,8 +939,9 @@
 
         var footerRowCell = $("<div class='ui-state-default slick-footerrow-column l" + i + " r" + i + "'></div>")
           .data("column", m)
-          .addClass(hasFrozenColumns() && i <= options.frozenColumn? 'frozen': '')
-          .appendTo(hasFrozenColumns() && (i > options.frozenColumn)? $footerRowR: $footerRowL);
+          .width(m.width - headerColumnWidthDiff)
+          .addClass(hasFrozenColumns() && i <= options.frozenColumn ? 'frozen' : '')
+          .appendTo(hasFrozenColumns() && (i > options.frozenColumn) ? $footerRowR : $footerRowL);
 
         trigger(self.onFooterRowCellRendered, {
           "node": footerRowCell[0],
@@ -1938,6 +1939,7 @@
       }
 
       updateColumnCaches();
+      createColumnFooter();
     }
 
     function applyColumnWidths() {
@@ -2063,7 +2065,6 @@
         invalidateAllRows();
         createColumnHeaders();
         createColumnGroupHeaders();
-        createColumnFooter();
         removeCssRules();
         createCssRules();
         resizeCanvas();
