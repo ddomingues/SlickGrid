@@ -2485,7 +2485,8 @@
       if (currentEditor && activeRow === row && activeCell === cell) {
         currentEditor.loadValue(d);
       } else {
-    	cellNode.innerHTML = d ? callFormatter(row, cell, getDataItemValueForColumn(d, m), m, d) : "";
+        var formattedValue = d ? callFormatter(row, cell, getDataItemValueForColumn(d, m), m, d) : "";
+    	  cellNode.html(formattedValue); 
         invalidatePostProcessingResults(row);
       }
     }
