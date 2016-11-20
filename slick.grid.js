@@ -950,13 +950,13 @@
     }
 
     function createColumnGroupHeaders() {
-      var columnsLength = 0;
       var frozenColumnsValid = false;
 
       if (!treeColumns.hasDepth())
         return;
 
       for (var index = 0; index < $groupHeadersL.length; index++) {
+        var columnsLength = 0;
 
         $groupHeadersL[index].empty();
         $groupHeadersR[index].empty();
