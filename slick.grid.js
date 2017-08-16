@@ -30,9 +30,9 @@
   if (typeof jQuery === "undefined") {
     throw "SlickGrid requires jquery module to be loaded";
   }
-  if (!jQuery.fn.drag) {
+  /*if (!jQuery.fn.drag) {
     throw "SlickGrid requires jquery.event.drag module to be loaded";
-  }
+  }*/
   if (typeof Slick === "undefined") {
     throw "slick.core.js not loaded";
   }
@@ -1040,8 +1040,9 @@
         var $headerTarget = hasFrozenColumns() ? ((i <= options.frozenColumn) ? $headerL : $headerR) : $headerL;
         var $headerRowTarget = hasFrozenColumns() ? ((i <= options.frozenColumn) ? $headerRowL : $headerRowR) : $headerRowL;
 
+        var headerContent = $("<span class='slick-column-name'></span>");
         var header = $("<div class='ui-state-default slick-header-column' />")
-          .html("<span class='slick-column-name'>" + m.name + "</span>")
+          .append(headerContent)
           .width(m.width - headerColumnWidthDiff)
           .attr("id", "" + uid + m.id)
           .attr("title", m.toolTip || "")
@@ -1049,6 +1050,8 @@
           .addClass(m.headerCssClass || "")
           .addClass(hasFrozenColumns() && i <= options.frozenColumn? 'frozen': '')
           .appendTo($headerTarget);
+
+        headerContent.append(m.headerFormatter ? callHeaderFormatter(m, $headerRowTarget) : m.name);
 
         if (options.enableColumnReorder || m.sortable) {
           header
@@ -1080,9 +1083,7 @@
 
       setSortColumns(sortColumns);
       setupColumnResize();
-      if (options.enableColumnReorder) {
-        setupColumnReorder();
-      }
+      setupColumnReorder();
     }
 
     function setupColumnSort() {
@@ -1215,86 +1216,90 @@
     }
 
     function setupColumnReorder() {
-      $headers.filter(":ui-sortable").sortable("destroy");
-      var columnScrollTimer = null;
+      if (options.enableColumnReorder) {
+        $headers.filter(":ui-sortable").sortable("destroy");
+        var columnScrollTimer = null;
 
-      function scrollColumnsRight() {
-        $viewportScrollContainerX[0].scrollLeft = $viewportScrollContainerX[0].scrollLeft + 10;
-      }
+        function scrollColumnsRight() {
+          $viewportScrollContainerX[0].scrollLeft = $viewportScrollContainerX[0].scrollLeft + 10;
+        }
 
-      function scrollColumnsLeft() {
-        $viewportScrollContainerX[0].scrollLeft = $viewportScrollContainerX[0].scrollLeft - 10;
-      }
+        function scrollColumnsLeft() {
+          $viewportScrollContainerX[0].scrollLeft = $viewportScrollContainerX[0].scrollLeft - 10;
+        }
 
-	  var canDragScroll;
-      $headers.sortable({
-        containment: "parent",
-        distance: 3,
-        axis: "x",
-        cursor: "default",
-        tolerance: "intersection",
-        helper: "clone",
-        placeholder: "slick-sortable-placeholder ui-state-default slick-header-column",
-        start: function (e, ui) {
-          ui.placeholder.width(ui.helper.outerWidth() - headerColumnWidthDiff);
-          canDragScroll = !hasFrozenColumns() ||
-            (ui.placeholder.offset().left + ui.placeholder.width()) > $viewportScrollContainerX.offset().left;
-	      $(ui.helper).addClass("slick-header-column-active");
-        },
-        beforeStop: function (e, ui) {
-          $(ui.helper).removeClass("slick-header-column-active");
-        },
-        sort: function (e, ui) {
-          if (canDragScroll && e.originalEvent.pageX > $container[0].clientWidth) {
-            if (!(columnScrollTimer)) {
-              columnScrollTimer = setInterval(
-                scrollColumnsRight, 100);
+        var canDragScroll;
+        $headers.sortable({
+          containment: "parent",
+          distance: 3,
+          axis: "x",
+          cursor: "default",
+          tolerance: "intersection",
+          helper: "clone",
+          placeholder: "slick-sortable-placeholder ui-state-default slick-header-column",
+          start: function (e, ui) {
+            ui.placeholder.width(ui.helper.outerWidth() - headerColumnWidthDiff);
+            canDragScroll = !hasFrozenColumns() ||
+              (ui.placeholder.offset().left + ui.placeholder.width()) > $viewportScrollContainerX.offset().left;
+          $(ui.helper).addClass("slick-header-column-active");
+          },
+          beforeStop: function (e, ui) {
+            $(ui.helper).removeClass("slick-header-column-active");
+          },
+          sort: function (e, ui) {
+            if (canDragScroll && e.originalEvent.pageX > $container[0].clientWidth) {
+              if (!(columnScrollTimer)) {
+                columnScrollTimer = setInterval(
+                  scrollColumnsRight, 100);
+              }
+            } else if (canDragScroll && e.originalEvent.pageX < $viewportScrollContainerX.offset().left) {
+              if (!(columnScrollTimer)) {
+                columnScrollTimer = setInterval(
+                  scrollColumnsLeft, 100);
+              }
+            } else {
+              clearInterval(columnScrollTimer);
+              columnScrollTimer = null;
             }
-          } else if (canDragScroll && e.originalEvent.pageX < $viewportScrollContainerX.offset().left) {
-            if (!(columnScrollTimer)) {
-              columnScrollTimer = setInterval(
-                scrollColumnsLeft, 100);
-            }
-          } else {
+          },
+          stop: function (e, ui) {
+            var cancel = false;
             clearInterval(columnScrollTimer);
             columnScrollTimer = null;
+            var limit = null;
+
+            if (treeColumns.hasDepth()) {
+              var validPositionInGroup = columnPositionValidInGroup(ui.item);
+              limit = validPositionInGroup.limit;
+
+              cancel = !validPositionInGroup.valid;
+
+              if (cancel)
+                alert(validPositionInGroup.message);
+            }
+
+            if (cancel || !getEditorLock().commitCurrentEdit()) {
+              $(this).sortable("cancel");
+              return;
+            }
+
+            var reorderedIds = $headerL.sortable("toArray");
+            reorderedIds = reorderedIds.concat($headerR.sortable("toArray"));
+
+            var reorderedColumns = [];
+            for (var i = 0; i < reorderedIds.length; i++) {
+              reorderedColumns.push(columns[getColumnIndex(reorderedIds[i].replace(uid, ""))]);
+            }
+            setColumns(reorderedColumns);
+
+            trigger(self.onColumnsReordered, { impactedColumns : getImpactedColumns( limit ) });
+            e.stopPropagation();
+            setupColumnResize();
           }
-        },
-        stop: function (e, ui) {
-          var cancel = false;
-          clearInterval(columnScrollTimer);
-          columnScrollTimer = null;
-          var limit = null;
-
-          if (treeColumns.hasDepth()) {
-            var validPositionInGroup = columnPositionValidInGroup(ui.item);
-            limit = validPositionInGroup.limit;
-
-            cancel = !validPositionInGroup.valid;
-
-            if (cancel)
-              alert(validPositionInGroup.message);
-          }
-
-          if (cancel || !getEditorLock().commitCurrentEdit()) {
-            $(this).sortable("cancel");
-            return;
-          }
-
-          var reorderedIds = $headerL.sortable("toArray");
-          reorderedIds = reorderedIds.concat($headerR.sortable("toArray"));
-
-          var reorderedColumns = [];
-          for (var i = 0; i < reorderedIds.length; i++) {
-            reorderedColumns.push(columns[getColumnIndex(reorderedIds[i].replace(uid, ""))]);
-          }
-          setColumns(reorderedColumns);
-
-          trigger(self.onColumnsReordered, { impactedColumns : getImpactedColumns( limit ) });
-          e.stopPropagation();
-          setupColumnResize();
-        }
-      });
+        });
+      } else {
+        $headers.filter(":ui-sortable").sortable("destroy");
+      }
     }
 
 	function getImpactedColumns( limit ) {
@@ -1573,7 +1578,7 @@
 
       if (options.frozenRow > -1) {
         hasFrozenRows = true;
-        frozenRowsHeight = ( options.frozenRow ) * options.rowHeight;
+        frozenRowsHeight = getFrozenRowsHeight();
 
         var dataLength = getDataLength() || this.data.length;
 
@@ -1789,6 +1794,28 @@
       $container.empty().removeClass(uid);
     }
 
+    function getRowHeight(index) {
+      let rowHeight = options.rowHeights && options.rowHeights[index] && options.rowHeights[index].height;
+      rowHeight = rowHeight || (data && data[index] && data[index]._rowHeight);
+      return rowHeight || options.rowHeight;
+    }
+
+    function getTotalRowHeight() {
+      let rowHeights = options.rowHeights || [];
+      let totalHeight = 0;
+      rowHeights.forEach((rowHeight) => {
+        totalHeight += rowHeight.height || options.rowHeight;
+      });
+      return totalHeight;
+    }
+
+    function getFrozenRowsHeight() {
+      if (options.frozenRow < 0) return 0;
+      let totalHeight = 0;
+      for (let i = 0; i <= options.frozenRow; i++) {
+        totalHeight += getRowHeight(i);
+      }
+    }
 
     //////////////////////////////////////////////////////////////////////////////////////////////
     // General
@@ -2092,10 +2119,13 @@
       validateAndEnforceOptions();
 
       setFrozenOptions();
+      setupColumnReorder();
       setScroller();
       zombieRowNodeFromLastMouseWheelEvent = null;
 
-      setColumns(treeColumns.extractColumns());
+      if (treeColumns.hasDepth()) {
+        setColumns(treeColumns.extractColumns());
+      }
       render();
     }
 
@@ -2183,11 +2213,26 @@
     // Rendering / Scrolling
 
     function getRowTop(row) {
-      return options.rowHeight * row - offset;
+      let top = 0;
+      for (let i = 0; i < row; i++) {
+        top += getRowHeight(i);
+      }
+      return top - offset;
     }
 
     function getRowFromPosition(y) {
-      return Math.floor((y + offset) / options.rowHeight);
+      //return Math.floor((y + offset) / options.rowHeight);
+      let height = 0;
+      let point = y + offset;
+      let i = 0;
+      for (i = 0; i <= data.length; i++) {
+        let rowHeight = getRowHeight(i);
+        if (point >= height && point < height + rowHeight) {
+          return i;
+        }
+        height += rowHeight;
+      }
+      return i + Math.floor((y + offset) / options.rowHeight);
     }
 
     function scrollTo(y) {
@@ -2267,6 +2312,10 @@
         return result;
     }
 
+    function callHeaderFormatter(column) {
+      return column.headerFormatter && column.headerFormatter(column);
+    }
+
     function getEditor(row, cell) {
       var column = columns[cell];
       var rowMetadata = data.getItemMetadata && data.getItemMetadata(row);
@@ -2310,9 +2359,10 @@
 
       var frozenRowOffset = getFrozenRowOffset(row);
 
-      var rowHtml = "<div class='ui-widget-content " + rowCss + "' style='top:"
-        + (getRowTop(row) - frozenRowOffset )
-        + "px'>";
+      var rowHtml = "<div class='ui-widget-content " + rowCss
+        + "' style='top:" + (getRowTop(row) - frozenRowOffset ) + "px;"
+        + " height: " + getRowHeight(row) + "px;"
+        + "'>";
 
       stringArrayL.push(rowHtml);
 
@@ -2378,7 +2428,7 @@
         }
       }
 
-      stringArray.push("<div class='" + cellCss + "'>");
+      stringArray.push("<div class='" + cellCss + "' style='height: " + getRowHeight(row) + "px'>");
 
       // if there is a corresponding row (if not, this is the Add New row or this data hasn't been loaded yet)
       if (item) {
@@ -2485,7 +2535,7 @@
       if (currentEditor && activeRow === row && activeCell === cell) {
         currentEditor.loadValue(d);
       } else {
-    	cellNode.innerHTML = d ? callFormatter(row, cell, getDataItemValueForColumn(d, m), m, d) : "";
+    	$(cellNode).html(d ? callFormatter(row, cell, getDataItemValueForColumn(d, m), m, d) : "");
         invalidatePostProcessingResults(row);
       }
     }
@@ -2512,9 +2562,9 @@
         if (row === activeRow && columnIdx === activeCell && currentEditor) {
           currentEditor.loadValue(d);
         } else if (d) {
-          node.innerHTML = callFormatter(row, columnIdx, getDataItemValueForColumn(d, m), m, d);
+          $(node).html(callFormatter(row, columnIdx, getDataItemValueForColumn(d, m), m, d));
         } else {
-          node.innerHTML = "";
+          $(node).html("");
         }
       }
 
@@ -2523,8 +2573,7 @@
 
     function getViewportHeight() {
       if (options.autoHeight) {
-        viewportH = options.rowHeight
-          * getDataLengthIncludingAddNew()
+        viewportH = getTotalRowHeight()
           + ( ( options.frozenColumn == -1 ) ? $headers.outerHeight() : 0 );
       } else {
         topPanelH = ( options.showTopPanel )
@@ -2938,7 +2987,7 @@
       }
 
       var x = document.createElement("div");
-      x.innerHTML = stringArray.join("");
+      $(x).html(stringArray.join(""));
 
       var processedRow;
       var $node;
@@ -3005,8 +3054,8 @@
       var x = document.createElement("div"),
         xRight = document.createElement("div");
 
-      x.innerHTML = stringArrayL.join("");
-      xRight.innerHTML = stringArrayR.join("");
+      $(x).html(stringArrayL.join(""));
+      $(xRight).html(stringArrayR.join(""));
 
       for (var i = 0, ii = rows.length; i < ii; i++) {
         if (( hasFrozenRows ) && ( rows[i] >= actualFrozenRow )) {
@@ -3835,7 +3884,7 @@
         $(activeCellNode).removeClass("editable invalid");
         if (d) {
           var column = columns[activeCell];
-          activeCellNode[0].innerHTML = callFormatter(activeRow, activeCell, getDataItemValueForColumn(d, column), column, d);
+          $(activeCellNode[0]).html(callFormatter(activeRow, activeCell, getDataItemValueForColumn(d, column), column, d));
           invalidatePostProcessingResults(activeRow);
         }
       }
@@ -3877,7 +3926,7 @@
 
       // don't clear the cell if a custom editor is passed through
       if (!editor) {
-        activeCellNode[0].innerHTML = "";
+        $(activeCellNode[0]).html("");
       }
 
       var metadata = data.getItemMetadata && data.getItemMetadata(activeRow);
@@ -4575,6 +4624,12 @@
       selectionModel.setSelectedRanges(rowsToRanges(rows));
     }
 
+    function setRowHeights(heights) {
+      if (!heights) {
+        throw "Row heights are not set";
+      }
+      options.rowHeights = heights;
+    }
 
     //////////////////////////////////////////////////////////////////////////////////////////////
     // Debug
@@ -4665,6 +4720,7 @@
       "getSelectedRows": getSelectedRows,
       "setSelectedRows": setSelectedRows,
       "getContainerNode": getContainerNode,
+      "setRowHeights": setRowHeights,
 
       "render": render,
       "invalidate": invalidate,
